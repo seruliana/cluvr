@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cluvr – Discover Your Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playwrite+AR+Guides&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand:      '#5b3ff8',
+            'brand-lt': '#ede9ff',
+            'brand-dk': '#3a22c7',
+            accent:     '#ff6b6b',
+            surface:    '#f7f6ff',
+            muted:      '#6b6880',
+            border:     '#e4e1f5',
+            ink:        '#0f0d1a',
+          },
+          fontFamily: {
+            head: ['Syne', 'sans-serif'],
+            body: ['"Noto Sans"', 'sans-serif'],
+            logo: ['"Playwrite AR Guides"', 'cursive'],
+            },
+          keyframes: {
+            fadeDown:  { '0%': { opacity: 0, transform: 'translateY(-16px)' }, '100%': { opacity: 1, transform: 'none' } },
+            fadeUp:    { '0%': { opacity: 0, transform: 'translateY(16px)'  }, '100%': { opacity: 1, transform: 'none' } },
+            heartBeat: { '0%,100%': { transform: 'scale(1)' }, '40%': { transform: 'scale(1.35)' }, '60%': { transform: 'scale(1.2)' } },
+          },
+          animation: {
+            'fade-down':   'fadeDown .6s ease both',
+            'fade-down-1': 'fadeDown .6s .1s ease both',
+            'fade-down-2': 'fadeDown .6s .2s ease both',
+            'fade-down-3': 'fadeDown .6s .3s ease both',
+            'fade-down-4': 'fadeDown .6s .4s ease both',
+            'fade-up':     'fadeUp .6s ease both',
+            'heart-beat':  'heartBeat .4s ease',
+          },
+          boxShadow: {
+            brand:      '0 4px 24px rgba(91,63,248,0.10)',
+            'brand-lg': '0 12px 48px rgba(91,63,248,0.16)',
+            'brand-btn':'0 6px 20px rgba(91,63,248,0.35)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+        font-family: 'Noto Sans', sans-serif;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity .5s ease,
+        transform .5s ease;
+    }
+    .reveal.visible {
+        opacity: 1; transform: none;
+    }
+
+    /* Heart keyframe (also referenced via JS class) */
+    .heart-animate {
+        animation: heartBeat .4s ease;
+    }
+    @keyframes heartBeat {
+        0%,100%{transform:scale(1)}
+        40%{transform:scale(1.35)}
+        60%{transform:scale(1.2)}
+    }
+
+    /* Hide scrollbar */
+    #clubStrip::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hero radial orb */
+    #hero::before {
+      content:'';
+      position:absolute;
+      width:600px;
+      height:600px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(91,63,248,.08),transparent 70%);
+      top:-100px;
+      right:-100px;
+      pointer-events:none;
+    }
+
+    /* Card image zoom on hover */
+    .card:hover .card-img-inner {
+        transform: scale(1.06);
+    }
+
+    /* Filter pill state */
+    .filter-pill.active{
+        background:#5b3ff8;
+        border-color:#5b3ff8;
+        color:#fff;
+    }
+    .filter-pill:not(.active):hover{
+        background:#ede9ff;
+        border-color:#5b3ff8;
+        color:#5b3ff8;
+    }
+
+    /* Nav active */
+    nav a.active{
+        color:#5b3ff8;
+        background:#ede9ff;
+    }
+    nav a:not(.active):hover{
+        color:#5b3ff8;
+        background:#ede9ff;
+    }
+
+    /* Like liked */
+    .like-btn.liked {
+        background:#fff0f0;
+    }
+
+    /* Club strip hover */
+    .strip-club:hover {
+        background:#ede9ff;
+        border-color:#5b3ff8;
+        color:#5b3ff8;
+    }
+
+    /* Club card hover */
+    .club-card:hover {
+        border-color:#5b3ff8;
+        box-shadow:0 4px 24px rgba(91,63,248,.10);
+        transform:translateY(-4px);
+    }
+  </style>
+</head>
+<body class="bg-white text-ink overflow-x-hidden">
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="sticky top-0 z-50 flex items-center justify-between px-8 h-16 bg-white/90 backdrop-blur-xl border-b border-border">
+    <a href="#" class="font-logo font-extrabold text-2xl text-brand tracking-tight no-underline intalic">
+        cl<span class="text-ink">uvr</span>
+      </a>
+
+    <nav class="flex gap-1.5">
+      <a href="#"         class="active text-sm font-medium no-underline px-3.5 py-1.5 rounded-full transition-all duration-150">Home</a>
+      <a href="#Discover" class="text-sm font-medium text-muted no-underline px-3.5 py-1.5 rounded-full transition-all duration-150">Search</a>
+      <a href="#clubList" class="text-sm font-medium text-muted no-underline px-3.5 py-1.5 rounded-full transition-all duration-150">Saved</a>
+      <a href="#"         class="text-sm font-medium text-muted no-underline px-3.5 py-1.5 rounded-full transition-all duration-150">Profile</a>
+    </nav>
+
+    <div class="flex items-center gap-3.5">
+      <button id="notifBtn" aria-label="Notifications"
+        class="relative w-9 h-9 rounded-full bg-surface flex items-center justify-center text-lg border-none cursor-pointer transition-colors hover:bg-brand-lt">
+        🔔
+        <span id="notifDot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
+      </button>
+      <div id="userAvatar" class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer border-2 border-brand-lt transition-transform hover:scale-110 select-none"
+        style="background:linear-gradient(135deg,#5b3ff8,#a78bfa)">JD</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section id="hero" class="relative grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[540px] items-center px-8 pt-[72px] pb-14 overflow-hidden"
+    style="background:linear-gradient(135deg,#f7f6ff 0%,#ede9ff 60%,#fdf4ff 100%)">
+
+    <!-- Left content -->
+    <div class="relative z-10">
+      <p id="homeStatus"
+        class="inline-flex items-center gap-2 bg-white text-brand border border-brand-lt px-3.5 py-1.5 rounded-full text-xs font-semibold mb-6 shadow-brand animate-fade-down">
+        🌸 Spring semester events are here!
+      </p>
+
+      <h1 class="font-head font-extrabold leading-[1.1] text-ink mb-4 tracking-tight animate-fade-down-1"
+        style="font-size:clamp(2.2rem,4vw,3.2rem)">
+        Discover your<br>campus <span class="text-brand">cluvr</span>
+      </h1>
+
+      <p class="text-muted text-[1.05rem] mb-8 max-w-[420px] leading-[1.7] animate-fade-down-2">
+        Join <strong id="userNum" class="text-brand font-semibold">5,000</strong>+ students in discovering
+        the best clubs and events at your university.
+      </p>
+
+      <div class="flex gap-3 flex-wrap animate-fade-down-3">
+        <button onclick="scrollToSection('Discover')"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-brand text-white font-medium text-sm cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk hover:shadow-brand-btn">
+          ✨ Take Interest Quiz
+        </button>
+        <button onclick="scrollToSection('Discover')"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-transparent text-brand border-2 border-brand font-medium text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:bg-brand-lt">
+          Browse Events
+        </button>
+      </div>
+
+      <!-- Social proof -->
+      <div class="flex items-center gap-2.5 mt-7 animate-fade-down-4">
+        <div class="flex">
+          <div class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">A</div>
+          <div class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold -ml-2" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">B</div>
+          <div class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold -ml-2" style="background:linear-gradient(135deg,#10b981,#3b82f6)">C</div>
+          <div class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold -ml-2 bg-brand">+</div>
+        </div>
+        <p class="text-xs text-muted"><strong class="text-ink">124+ friends</strong> recently joined new clubs</p>
+      </div>
+    </div>
+
+    <!-- Right visual -->
+    <div class="hidden md:block relative z-10 pl-6">
+      <div class="rounded-2xl overflow-hidden shadow-brand-lg h-[280px] flex flex-col justify-end p-6"
+        style="background:linear-gradient(135deg,#3a22c7,#7c3aed)">
+        <div class="text-5xl mb-3">📸</div>
+        <h3 class="font-head text-white font-bold text-lg">NUM Photography Club</h3>
+        <p class="text-white/70 text-xs mt-1">📍 Main Campus North Gate · 142 Active Members</p>
+      </div>
+      <div class="flex gap-2 flex-wrap mt-4">
+        <div class="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up" style="animation-delay:.1s">
+          <span class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-sm">🤖</span>Robotics Club
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up" style="animation-delay:.2s">
+          <span class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-sm">🌿</span>Eco Society
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up" style="animation-delay:.3s">
+          <span class="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-sm">💃</span>Dance Team
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up" style="animation-delay:.4s">
+          <span class="w-6 h-6 rounded-full bg-brand-lt flex items-center justify-center text-sm">🎙️</span>Debate
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CLUB STRIP ═══════════════ -->
+  <div id="clubStrip" class="flex items-center gap-4 px-8 py-5 border-b border-border bg-white overflow-x-auto" style="-ms-overflow-style:none;scrollbar-width:none">
+    <span class="text-[11px] font-semibold text-muted whitespace-nowrap uppercase tracking-widest">Your Clubs</span>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Hackum</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Art Soc</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Finance</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Debate</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Chess</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-brand inline-block"></span>Music</a>
+    <a href="#" class="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150"><span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>Eco</a>
+    <a href="#" class="whitespace-nowrap text-sm font-semibold text-brand no-underline px-2">+ 8 more</a>
+  </div>
+
+  <!-- ═══════════════ DISCOVER ═══════════════ -->
+  <section id="Discover" class="px-8 py-[60px]">
+
+    <div class="flex items-end justify-between mb-7">
+      <div>
+        <h2 class="font-head font-extrabold text-[1.7rem] text-ink tracking-tight">Discover what's happening</h2>
+        <p class="text-muted text-sm mt-1">Handpicked events and clubs based on your interests.</p>
+      </div>
+      <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-brand text-brand text-xs font-medium no-underline transition-all hover:bg-brand-lt">View All</a>
+    </div>
+
+    <!-- Filter -->
+    <div class="flex gap-2 mb-8">
+      <button class="filter-pill px-4 py-2 rounded-full border-2 border-transparent text-sm font-medium cursor-pointer transition-all duration-150 active" data-filter="all">All</button>
+      <button class="filter-pill px-4 py-2 rounded-full border-2 border-border  text-sm font-medium text-muted cursor-pointer transition-all duration-150" data-filter="event">Events</button>
+      <button class="filter-pill px-4 py-2 rounded-full border-2 border-border  text-sm font-medium text-muted cursor-pointer transition-all duration-150" data-filter="club">Clubs</button>
+    </div>
+
+    <!-- Cards -->
+    <div id="cardContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <!-- ── Card 1 · Event ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="event">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-brand-lt to-violet-200">🎉</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-orange-50 text-orange-600">📅 Upcoming Event</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="1">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 Student Union</span>
+            <span class="text-xs text-muted" id="likes-1">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">Pitch Night: Startup Edition</h3>
+          <p class="text-xs text-muted leading-relaxed mb-3">Witness the next big campus startups pitch to real investors. Networking and free pizza included.</p>
+          <div class="flex flex-col gap-1 mb-3 text-xs text-muted">
+            <div class="flex items-center gap-1.5">📅 Friday, Nov 24 · 6:00 PM</div>
+            <div class="flex items-center gap-1.5">📍 Innovation Hub, Room 201</div>
+            <div class="flex items-center gap-1.5">🪑 48 seats left</div>
+          </div>
+          <button class="action-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand text-white text-xs font-medium cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk">Register Now</button>
+        </div>
+      </div>
+
+      <!-- ── Card 2 · Club ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="club" style="transition-delay:.08s">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-green-50 to-emerald-100">📸</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-green-50 text-green-700">✅ Active Club</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="2">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 School of Arts</span>
+            <span class="text-xs text-muted" id="likes-2">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">NUM Photography Club</h3>
+          <p class="text-xs text-muted leading-relaxed mb-4">Capturing life's most precious moments through the lens. Weekly workshops and photo walks.</p>
+          <button class="follow-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent text-brand border-2 border-brand text-xs font-medium cursor-pointer transition-all hover:bg-brand-lt">Follow Club</button>
+        </div>
+      </div>
+
+      <!-- ── Card 3 · Event ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="event" style="transition-delay:.16s">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-emerald-50 to-teal-100">♻️</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-orange-50 text-orange-600">📅 Upcoming Event</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="3">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 Eco Warriors Society</span>
+            <span class="text-xs text-muted" id="likes-3">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">Sustainable Fashion Swap</h3>
+          <p class="text-xs text-muted leading-relaxed mb-3">Clean out your closet and find new treasures. A sustainable way to refresh your wardrobe.</p>
+          <div class="flex flex-col gap-1 mb-3 text-xs text-muted">
+            <div class="flex items-center gap-1.5">📅 Saturday, Nov 27 · 10:00 AM</div>
+            <div class="flex items-center gap-1.5">📍 Main Quad, South Lawn</div>
+          </div>
+          <button class="action-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand text-white text-xs font-medium cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk">Register Now</button>
+        </div>
+      </div>
+
+      <!-- ── Card 4 · Club ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="club" style="transition-delay:.24s">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-violet-50 to-purple-100">🔭</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-green-50 text-green-700">✅ Active Club</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="4">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 Student Union</span>
+            <span class="text-xs text-muted" id="likes-4">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">Astrology &amp; Cosmic Club</h3>
+          <p class="text-xs text-muted leading-relaxed mb-4">Explore the stars, birth charts, and the mystical wonders of the universe with fellow enthusiasts.</p>
+          <button class="follow-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent text-brand border-2 border-brand text-xs font-medium cursor-pointer transition-all hover:bg-brand-lt">Follow Club</button>
+        </div>
+      </div>
+
+      <!-- ── Card 5 · Event ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="event" style="transition-delay:.32s">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-pink-50 to-rose-100">🎨</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-orange-50 text-orange-600">📅 Upcoming Event</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="5">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 Design Collective</span>
+            <span class="text-xs text-muted" id="likes-5">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">Intro to UI Design Workshop</h3>
+          <p class="text-xs text-muted leading-relaxed mb-3">Master the basics of Figma and user-centric design in this intensive hands-on session.</p>
+          <div class="flex flex-col gap-1 mb-3 text-xs text-muted">
+            <div class="flex items-center gap-1.5">📅 Monday, Nov 27 · 2:00 PM</div>
+            <div class="flex items-center gap-1.5">📍 Design Lab B</div>
+          </div>
+          <button class="action-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand text-white text-xs font-medium cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk">Register Now</button>
+        </div>
+      </div>
+
+      <!-- ── Card 6 · Event ── -->
+      <div class="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg" data-type="event" style="transition-delay:.4s">
+        <div class="relative h-44 overflow-hidden">
+          <div class="card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br from-amber-50 to-yellow-100">🕯️</div>
+          <div class="absolute top-3 left-3"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-orange-50 text-orange-600">📅 Upcoming Event</span></div>
+          <button class="like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110" data-id="6">
+            <span class="heart block">🤍</span>
+          </button>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-brand">🏫 Creative Arts Club</span>
+            <span class="text-xs text-muted" id="likes-6">0 likes</span>
+          </div>
+          <h3 class="font-head font-bold text-[1.05rem] text-ink mb-2 leading-tight">Candle Painting Workshop</h3>
+          <p class="text-xs text-muted leading-relaxed mb-3">A relaxing evening of artistic expression — decorate candles and paints you take home.</p>
+          <div class="flex flex-col gap-1 mb-3 text-xs text-muted">
+            <div class="flex items-center gap-1.5">📅 Wednesday, Nov 29 · 6:30 PM</div>
+            <div class="flex items-center gap-1.5">📍 Arts Building, Room 10</div>
+          </div>
+          <button class="action-btn inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand text-white text-xs font-medium cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk">Register Now</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════ CLUBS YOU MIGHT LIKE ═══════════════ -->
+  <section id="clubList" class="reveal px-8 py-12 bg-surface border-t border-border">
+    <div class="flex items-end justify-between mb-5">
+      <div>
+        <h2 class="font-head font-extrabold text-[1.7rem] text-ink tracking-tight">Clubs you might like</h2>
+        <p class="text-muted text-sm mt-1">Based on your interests and activity</p>
+      </div>
+      <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-brand text-brand text-xs font-medium no-underline transition-all hover:bg-brand-lt">See All Clubs</a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-brand-lt flex items-center justify-center text-2xl">📷</div>
+        <h4 class="font-head font-bold text-sm text-center">Photography Club</h4>
+        <p class="text-xs text-muted">142 members</p>
+      </a>
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-2xl">🍳</div>
+        <h4 class="font-head font-bold text-sm text-center">Cooking Club</h4>
+        <p class="text-xs text-muted">88 members</p>
+      </a>
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center text-2xl">🧘</div>
+        <h4 class="font-head font-bold text-sm text-center">Yoga Club</h4>
+        <p class="text-xs text-muted">210 members</p>
+      </a>
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-pink-50 flex items-center justify-center text-2xl">💻</div>
+        <h4 class="font-head font-bold text-sm text-center">Coding Bootcamp</h4>
+        <p class="text-xs text-muted">325 members</p>
+      </a>
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl">♟️</div>
+        <h4 class="font-head font-bold text-sm text-center">Chess Club</h4>
+        <p class="text-xs text-muted">64 members</p>
+      </a>
+      <a href="#" class="club-card flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-border bg-white text-ink no-underline transition-all duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-2xl">🎭</div>
+        <h4 class="font-head font-bold text-sm text-center">Drama Society</h4>
+        <p class="text-xs text-muted">97 members</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ALL CAUGHT UP ═══════════════ -->
+  <div id="more" class="text-center px-8 py-10 border-t border-border">
+    <p class="text-muted text-sm mb-3.5">🎉 You're all caught up for today!</p>
+    <button onclick="scrollToSection('Discover')"
+      class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-brand text-brand text-sm font-medium cursor-pointer bg-transparent transition-all hover:bg-brand-lt">
+      Search all <strong id="eventNum" class="font-semibold">200</strong>+ Activities
+    </button>
+  </div>
+
+  <!-- ═══════════════ REGISTER CTA ═══════════════ -->
+  <section id="registerClub" class="reveal relative mx-8 mb-16 rounded-2xl overflow-hidden px-12 py-14 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center"
+    style="background:linear-gradient(135deg,#5b3ff8 0%,#7c3aed 100%)">
+    <div class="absolute w-[400px] h-[400px] rounded-full pointer-events-none" style="background:rgba(255,255,255,.06);top:-150px;right:-100px"></div>
+    <div class="relative z-10">
+      <h2 class="font-head font-extrabold text-white text-[1.6rem] leading-tight mb-2">Running a campus club?<br>Take it to the next level.</h2>
+      <p class="text-white/75 text-sm mb-5 max-w-[480px]">Join hundreds of club leaders using cluvr to reach more students, manage registrations, and grow their community effectively.</p>
+      <div class="flex gap-3 flex-wrap">
+        <button class="reg-btn inline-flex items-center px-5 py-2.5 rounded-full bg-white text-brand font-semibold text-sm cursor-pointer border-none transition-all hover:bg-brand-lt hover:-translate-y-0.5">Register Your Club</button>
+        <button class="reg-btn inline-flex items-center px-5 py-2.5 rounded-full text-white/80 text-sm font-medium cursor-pointer border-none transition-all hover:-translate-y-0.5" style="background:rgba(255,255,255,.15)">Learn about perks →</button>
+      </div>
+    </div>
+    <div class="relative z-10 flex gap-8">
+      <div class="text-center">
+        <div class="font-head font-extrabold text-white text-[1.6rem]">500+</div>
+        <div class="text-white/70 text-xs mt-0.5">Active Clubs</div>
+      </div>
+      <div class="text-center">
+        <div class="font-head font-extrabold text-white text-[1.6rem]">12K+</div>
+        <div class="text-white/70 text-xs mt-0.5">Monthly Sign-ups</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="bg-ink text-white/60 px-8 pt-12 pb-7">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 mb-10">
+      <div>
+        <a href="#" class="font-head font-extrabold text-[1.3rem] text-white tracking-tight no-underline block mb-3">cluvr</a>
+        <p class="text-sm leading-[1.7] max-w-[220px]">The ultimate platform for campus engagement and discovery.</p>
+        <div class="flex gap-2.5 mt-5">
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline transition-colors hover:bg-brand">𝕏</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline transition-colors hover:bg-brand">in</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline transition-colors hover:bg-brand">ig</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline transition-colors hover:bg-brand">✉</a>
+        </div>
+      </div>
+      <div>
+        <h5 class="font-head text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Platform</h5>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Search Events</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Clubs Directory</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Submit Event</a>
+      </div>
+      <div>
+        <h5 class="font-head text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Community</h5>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Campus Rules</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Safety Center</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Leaderboards</a>
+      </div>
+      <div>
+        <h5 class="font-head text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Support</h5>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Help Center</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Contact Us</a>
+        <a href="#" class="block text-sm text-white/50 no-underline mb-2.5 transition-colors hover:text-white">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/40">
+      <p>© 2025 Cluvr. All rights reserved.</p>
+      <nav class="flex gap-5">
+        <a href="#" class="text-white/40 no-underline transition-colors hover:text-white">Privacy Policy</a>
+        <a href="#" class="text-white/40 no-underline transition-colors hover:text-white">Terms of Service</a>
+        <a href="#" class="text-white/40 no-underline transition-colors hover:text-white">Contact Us</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ═══════════════ SCRIPTS ═══════════════ -->
+  <script>
+    /* ── Like System ──────────────────────────────── */
+    const likeCounts = {};
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      const id = btn.dataset.id;
+      likeCounts[id] = 0;
+      btn.addEventListener('click', () => {
+        const heart = btn.querySelector('.heart');
+        const liked = btn.classList.toggle('liked');
+        likeCounts[id] += liked ? 1 : -1;
+        heart.textContent = liked ? '❤️' : '🤍';
+        heart.classList.remove('heart-animate');
+        void heart.offsetWidth;                          // force reflow
+        heart.classList.add('heart-animate');
+        const counter = document.getElementById(`likes-${id}`);
+        if (counter) counter.textContent = `${likeCounts[id]} like${likeCounts[id] !== 1 ? 's' : ''}`;
+      });
+    });
+
+    /* ── Category Filter ──────────────────────────── */
+    const pills = document.querySelectorAll('.filter-pill');
+    const cards = document.querySelectorAll('#cardContainer .card');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const filter = pill.dataset.filter;
+        cards.forEach(card => {
+          card.style.display = (filter === 'all' || card.dataset.type === filter) ? '' : 'none';
+        });
+      });
+    });
+
+    /* ── Animated Counter ─────────────────────────── */
+    function animateCount(el, target, suffix = '') {
+      const duration = 1400, start = performance.now();
+      const update = now => {
+        const t = Math.min((now - start) / duration, 1);
+        const val = Math.round((1 - Math.pow(1 - t, 3)) * target);
+        el.textContent = val >= 1000 ? (val / 1000).toFixed(0) + 'K' + suffix : val + suffix;
+        if (t < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    }
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        animateCount(document.getElementById('userNum'),  5000, '+');
+        animateCount(document.getElementById('eventNum'), 200,  '');
+      }, 600);
+    });
+
+    /* ── Scroll Reveal ────────────────────────────── */
+    const revealObserver = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ── Notification Bell ────────────────────────── */
+    let notifOpen = false;
+    document.getElementById('notifBtn').addEventListener('click', () => {
+      document.getElementById('notifDot').style.display = 'none';
+      notifOpen = !notifOpen;
+    });
+
+    /* ── Smooth Scroll Helper ─────────────────────── */
+    function scrollToSection(id) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ── Register CTA ─────────────────────────────── */
+    document.querySelectorAll('.reg-btn').forEach(btn => {
+      btn.addEventListener('click', () => alert('🎉 Club registration coming soon! Stay tuned.'));
+    });
+
+    /* ── Action Buttons (Register / Follow) ──────── */
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.textContent = '✅ Registered!';
+        btn.disabled = true;
+        btn.style.cssText = 'background:#10b981;color:#fff;cursor:default;border-radius:9999px;padding:8px 16px;font-size:.75rem;';
+      });
+    });
+    document.querySelectorAll('.follow-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.textContent = '✓ Following';
+        btn.style.cssText = 'background:#5b3ff8;color:#fff;border:2px solid #5b3ff8;border-radius:9999px;padding:8px 16px;font-size:.75rem;';
+      });
+    });
+  </script>
+</body>
+</html>

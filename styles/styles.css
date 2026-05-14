@@ -1,0 +1,88 @@
+body {
+    font-family: 'Noto Sans', sans-serif;
+}
+
+/* Scroll reveal */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .5s ease,
+    transform .5s ease;
+}
+.reveal.visible {
+    opacity: 1; transform: none;
+}
+
+/* Heart keyframe (also referenced via JS class) */
+.heart-animate {
+    animation: heartBeat .4s ease;
+}
+@keyframes heartBeat {
+    0%,100%{transform:scale(1)}
+    40%{transform:scale(1.35)}
+    60%{transform:scale(1.2)}
+}
+
+/* Hide scrollbar */
+#clubStrip::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hero radial orb */
+#hero::before {
+  content:'';
+  position:absolute;
+  width:600px;
+  height:600px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(91,63,248,.08),transparent 70%);
+  top:-100px;
+  right:-100px;
+  pointer-events:none;
+}
+
+/* Card image zoom on hover */
+.card:hover .card-img-inner {
+    transform: scale(1.06);
+}
+
+/* Filter pill state */
+.filter-pill.active{
+    background:#5b3ff8;
+    border-color:#5b3ff8;
+    color:#fff;
+}
+.filter-pill:not(.active):hover{
+    background:#ede9ff;
+    border-color:#5b3ff8;
+    color:#5b3ff8;
+}
+
+/* Nav active */
+nav a.active{
+    color:#5b3ff8;
+    background:#ede9ff;
+}
+nav a:not(.active):hover{
+    color:#5b3ff8;
+    background:#ede9ff;
+}
+
+/* Like liked */
+.like-btn.liked {
+    background:#fff0f0;
+}
+
+/* Club strip hover */
+.strip-club:hover {
+    background:#ede9ff;
+    border-color:#5b3ff8;
+    color:#5b3ff8;
+}
+
+/* Club card hover */
+.club-card:hover {
+    border-color:#5b3ff8;
+    box-shadow:0 4px 24px rgba(91,63,248,.10);
+    transform:translateY(-4px);
+}

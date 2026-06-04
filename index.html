@@ -56,16 +56,15 @@
 <body class="bg-white text-ink overflow-x-hidden">
 
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl">
-  
-    <div class="flex items-center justify-between px-5 h-14">
-      
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border">
+    <div class="flex items-center justify-between px-6 h-14 max-w-6xl mx-auto">
+      <!-- Hamburger (mobile) -->
       <button id="menuBtn" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-md" aria-label="Toggle menu">
         <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
         <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
         <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
       </button>
-  
+
       <!-- Logo -->
       <a href="#" class="flex items-center pt-4">
         <svg width="120" height="100" viewBox="0 0 80 70" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -93,26 +92,32 @@
             </defs>
         </svg>
       </a>
-  
-      <!-- Nav: зөвхөн desktop-д харагдана -->
+
       <nav class="hidden md:flex gap-1.5">
-        <a href="#" class="text-sm font-medium px-3.5 py-1.5 rounded-full bg-gray-100 no-underline text-gray-900 active">Home</a>
-        <a href="#" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Search</a>
-        <a href="#" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Saved</a>
+        <a href="index.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full bg-brand-lt text-brand no-underline">Home</a>
+        <a href="search.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Search</a>
+        <a href="saved.html"  class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Saved</a>
+        <a href="profile.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Profile</a>
       </nav>
-  
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer select-none"
-        style="background: linear-gradient(135deg, #5b3ff8, #a78bfa)">Sa</div>
+
+      <div class="flex items-center gap-3">
+        <button class="relative w-9 h-9 rounded-full bg-surface flex items-center justify-center text-base border-none cursor-pointer hover:bg-brand-lt transition-colors">
+          🔔<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
+        </button>
+        <a href="profile.html" class="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-lt block">
+          <div class="w-full h-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#5b3ff8,#a78bfa)">Sa</div>
+        </a>
+      </div>
     </div>
-  
-    <!-- Mobile menu: нуугдсан байгаад нээгддэг -->
-    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 flex flex-col gap-1">
-      <a href="#" class="text-sm font-medium px-4 py-2.5 rounded-xl bg-gray-100 no-underline text-gray-900">Home</a>
-      <a href="#" class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline transition-all">Search</a>
-      <a href="#" class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline transition-all">Saved</a>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 flex flex-col gap-1 border-t border-border">
+      <a href="index.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Home</a>
+      <a href="search.html"  class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Search</a>
+      <a href="saved.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl bg-brand-lt text-brand no-underline">Saved</a>
+      <a href="profile.html" class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Profile</a>
     </div>
-  
   </header>
+
   
 
 

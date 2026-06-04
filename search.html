@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cluvr – Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -15,272 +15,258 @@
             brand:'#5b3ff8','brand-lt':'#ede9ff','brand-dk':'#3a22c7',
             accent:'#ff6b6b',surface:'#f7f6ff',muted:'#6b6880',border:'#e4e1f5',ink:'#0f0d1a'
           },
-          fontFamily:{ body:['"Noto Sans"','sans-serif'] },
-          boxShadow:{ brand:'0 4px 24px rgba(91,63,248,0.10)','brand-lg':'0 12px 48px rgba(91,63,248,0.16)' }
+          fontFamily:{ body:['"DM Sans"','sans-serif'] },
+          boxShadow:{ brand:'0 4px 24px rgba(91,63,248,0.10)','brand-lg':'0 12px 48px rgba(91,63,248,0.16)', soft:'0 2px 16px rgba(15,13,26,0.06)' }
         }
       }
     }
   </script>
-  <link rel="stylesheet" href="./styles/styles.css">
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    body { background: #f5f4fb; }
+
+    .event-card {
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s;
+    }
+    .event-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(91,63,248,0.13);
+    }
+    .event-card.hiding {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    .event-card.hidden {
+      display: none;
+    }
+
+    .search-type-btn { transition: all 0.2s; }
+    .search-type-btn.active {
+      background: #5b3ff8;
+      border-color: #5b3ff8;
+      color: white;
+    }
+    .search-type-btn:not(.active) {
+      background: white;
+      border-color: #e4e1f5;
+      color: #6b6880;
+    }
+
+    .save-btn { transition: transform 0.15s; }
+    .save-btn:hover { transform: scale(1.15); }
+    .save-btn.saved path { stroke: #5b3ff8; fill: #5b3ff8; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #0f0d1a;
+      color: white;
+      padding: 11px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Empty state */
+    #emptyState { display: none; }
+
+    /* Sidebar filter label hover */
+    .cat-label { transition: color 0.15s; }
+    .cat-label:hover { color: #5b3ff8; }
+
+    /* Scroll top */
+    #scrollTop { display: none; }
+
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeSlideIn 0.3s ease forwards; }
+
+    /* Mobile filter panel */
+    .mobile-filter-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(15,13,26,0.4);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .mobile-filter-panel.open { opacity: 1; pointer-events: all; }
+    .mobile-filter-drawer {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .mobile-filter-panel.open .mobile-filter-drawer {
+      transform: translateY(0);
+    }
+  </style>
 </head>
-<body class="bg-[#f5f5fb] text-ink min-h-screen">
+<body class="text-ink min-h-screen">
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <!-- MOBILE FILTER PANEL -->
+  <div id="mobileFilterPanel" class="mobile-filter-panel" onclick="closeMobileFilter(event)">
+    <div class="mobile-filter-drawer" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="font-semibold text-ink">Filter by Category</h3>
+        <button onclick="closeMobileFilter()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border-none cursor-pointer text-lg">×</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-5" id="mobileCatFilters">
+        <!-- filled by JS -->
+      </div>
+      <div class="flex gap-3">
+        <button onclick="clearMobileFilters()" class="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted bg-transparent cursor-pointer">Clear</button>
+        <button onclick="applyMobileFilters()" class="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-medium border-none cursor-pointer">Apply</button>
+      </div>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border">
     <div class="flex items-center justify-between px-6 h-14 max-w-6xl mx-auto">
-      <!-- Hamburger (mobile) -->
-      <button id="menuBtn" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-md" aria-label="Toggle menu">
-        <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
-        <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
-        <span class="block w-5 h-0.5 bg-gray-800 transition-all duration-300"></span>
+      <button id="menuBtn" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-md border-none bg-transparent cursor-pointer">
+        <span class="block w-5 h-0.5 bg-gray-800 rounded"></span>
+        <span class="block w-5 h-0.5 bg-gray-800 rounded"></span>
+        <span class="block w-5 h-0.5 bg-gray-800 rounded"></span>
       </button>
-
-      <!-- Logo -->
-      <a href="#" class="flex items-center pt-4">
-        <svg width="120" height="100" viewBox="0 0 80 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18.304 34.1001C18.304 33.0601 17.84 32.5401 16.912 32.5401C16.224 32.5401 15.608 32.9321 15.064 33.7161C14.488 34.5641 14.2 35.5561 14.2 36.6921C14.2 37.8281 14.448 38.7081 14.944 39.3321C15.456 39.9401 16.152 40.2441 17.032 40.2441C18.088 40.2441 19.2 39.8121 20.368 38.9481C21.552 38.0841 22.504 37.0121 23.224 35.7321C23.544 35.9721 23.856 36.4121 24.16 37.0521C23.696 37.9801 22.832 39.0201 21.568 40.1721C20.912 40.7801 20.096 41.2921 19.12 41.7081C18.064 42.1561 17.008 42.3801 15.952 42.3801C14.528 42.3801 13.32 41.8921 12.328 40.9161C11.352 39.9401 10.864 38.6681 10.864 37.1001C10.864 35.1961 11.504 33.6521 12.784 32.4681C14.064 31.2841 15.496 30.6921 17.08 30.6921C18.312 30.6921 19.288 30.9481 20.008 31.4601C20.728 31.9721 21.088 32.6441 21.088 33.4761C21.088 34.0201 20.896 34.4921 20.512 34.8921C19.808 35.5961 18.952 35.9481 17.944 35.9481C18.184 35.1481 18.304 34.5321 18.304 34.1001ZM25.258 42.4041C24.282 42.4041 23.514 42.1321 22.954 41.5881C22.394 41.0281 22.114 40.2681 22.114 39.3081C22.114 39.0521 22.546 35.2521 23.41 27.9081C23.634 26.0201 24.234 24.8281 25.21 24.3321C25.658 24.0921 26.194 23.9721 26.818 23.9721C28.93 23.9721 29.986 24.9481 29.986 26.9001C29.986 27.0601 29.978 27.2281 29.962 27.4041C29.802 29.5481 28.458 31.7321 25.93 33.9561C25.85 34.7401 25.762 35.5001 25.666 36.2361C25.474 37.8841 25.378 38.7961 25.378 38.9721C25.378 39.8041 25.738 40.2201 26.458 40.2201C27.242 40.2201 27.97 39.7721 28.642 38.8761C29.33 37.9641 29.858 36.8041 30.226 35.3961C30.37 35.4441 30.57 35.5801 30.826 35.8041C31.082 36.0121 31.258 36.1961 31.354 36.3561C31.098 37.6841 30.522 38.9561 29.626 40.1721C29.178 40.7961 28.61 41.3081 27.922 41.7081C27.138 42.1721 26.25 42.4041 25.258 42.4041ZM26.194 31.5561C27.666 29.9401 28.402 28.4921 28.402 27.2121C28.402 26.4441 28.114 26.0601 27.538 26.0601C27.17 26.0921 26.922 26.3321 26.794 26.7801C26.682 27.2281 26.57 27.9561 26.458 28.9641C26.362 29.9721 26.298 30.5961 26.266 30.8361L26.194 31.5561ZM40.0819 30.9321C39.4259 36.1161 39.0979 38.8761 39.0979 39.2121C39.0979 39.8521 39.3299 40.1721 39.7939 40.1721C40.2099 40.1721 40.6579 39.8921 41.1379 39.3321C41.6339 38.7561 42.0259 37.9001 42.3139 36.7641C42.8419 37.3401 43.1619 37.7881 43.2739 38.1081C42.9059 39.6601 42.3219 40.7561 41.5219 41.3961C40.7219 42.0361 39.8979 42.3561 39.0499 42.3561C37.6579 42.3561 36.7219 41.8201 36.2419 40.7481C35.4099 41.8201 34.2979 42.3561 32.9059 42.3561C31.7539 42.3561 30.8659 42.0681 30.2419 41.4921C29.6179 40.9161 29.3059 40.1641 29.3059 39.2361C29.3059 39.0121 29.3459 38.6201 29.4259 38.0601C29.7939 35.0841 30.0739 32.7161 30.2659 30.9561C30.7619 30.7801 31.2179 30.6921 31.6339 30.6921C32.0499 30.6921 32.3619 30.7081 32.5699 30.7401C32.7779 30.7721 32.9779 30.8921 33.1699 31.1001C33.3619 31.3081 33.4579 31.6041 33.4579 31.9881L32.6659 38.1081C32.6339 38.3001 32.6179 38.4761 32.6179 38.6361C32.6179 39.5801 33.0499 40.0521 33.9139 40.0521C34.7139 40.0521 35.3779 39.6601 35.9059 38.8761C35.9059 38.7001 35.9219 38.4201 35.9539 38.0361L36.7459 31.6521C36.8579 31.3801 37.0979 31.1561 37.4659 30.9801C37.8339 30.7881 38.2899 30.6921 38.8339 30.6921C39.3939 30.6921 39.8099 30.7721 40.0819 30.9321ZM50.566 37.9401C50.07 39.2361 49.35 40.3001 48.406 41.1321C47.478 41.9481 46.414 42.3561 45.214 42.3561C44.014 42.3561 43.11 41.9641 42.502 41.1801C41.91 40.3801 41.614 39.4681 41.614 38.4441C41.614 38.2361 41.622 38.0281 41.638 37.8201L42.454 30.9801C42.966 30.7881 43.51 30.6921 44.086 30.6921C45.142 30.6921 45.67 31.0841 45.67 31.8681C45.67 31.9001 45.534 32.9721 45.262 35.0841C45.006 37.1801 44.878 38.3961 44.878 38.7321C44.878 39.6441 45.318 40.1001 46.198 40.1001C46.95 40.1001 47.582 39.6761 48.094 38.8281C48.99 37.2921 49.462 35.5561 49.51 33.6201H49.294C48.622 33.6201 48.11 33.4681 47.758 33.1641C47.358 32.8121 47.158 32.3881 47.158 31.8921C47.158 31.3961 47.31 30.9961 47.614 30.6921C47.982 30.3721 48.422 30.2121 48.934 30.2121C50.15 30.2121 50.91 30.8441 51.214 32.1081C51.694 32.0441 52.038 31.9801 52.246 31.9161V33.2841L51.358 33.4281V33.8361C51.342 35.2761 51.078 36.6441 50.566 37.9401ZM48.526 31.8921C48.526 32.1641 48.758 32.3001 49.222 32.3001C49.27 32.3001 49.318 32.3001 49.366 32.3001C49.254 31.8681 49.086 31.6521 48.862 31.6521C48.638 31.6521 48.526 31.7321 48.526 31.8921ZM59.5204 33.8361C59.5204 33.1321 59.1924 32.7801 58.5364 32.7801C57.8964 32.7801 57.3844 33.1961 57.0004 34.0281C58.7284 35.3881 59.5924 36.9161 59.5924 38.6121C59.5924 39.8441 59.2484 40.7801 58.5604 41.4201C57.8724 42.0601 57.0084 42.3801 55.9684 42.3801C54.9284 42.3801 54.1684 42.0601 53.6884 41.4201C53.2084 40.7641 52.9684 39.9401 52.9684 38.9481C52.9684 38.6441 52.9764 38.4201 52.9924 38.2761L53.8324 30.9561C54.4084 30.7801 54.9924 30.6921 55.5844 30.6921C56.5604 30.6921 57.0484 31.0521 57.0484 31.7721V31.8201C57.6884 31.0681 58.5044 30.6921 59.4964 30.6921C60.2164 30.6921 60.7764 30.8601 61.1764 31.1961C61.5764 31.5161 61.7764 31.9481 61.7764 32.4921C61.7764 33.0361 61.5684 33.4841 61.1524 33.8361C60.7524 34.1721 60.2244 34.3401 59.5684 34.3401C59.5364 34.3401 59.5044 34.3401 59.4724 34.3401C59.5044 34.1641 59.5204 33.9961 59.5204 33.8361ZM58.0324 38.4921C58.0324 37.5641 57.5524 36.6361 56.5924 35.7081C56.3044 38.0121 56.1604 39.1721 56.1604 39.1881C56.1604 39.8601 56.4324 40.1961 56.9764 40.1961C57.6804 40.1961 58.0324 39.6281 58.0324 38.4921Z" fill="url(#paint0_linear_9_7)"/>
-            <path d="M31 21.7361C30.8333 20.2361 31.4 16.8361 35 15.2361" stroke="url(#paint1_linear_9_7)" stroke-linecap="round"/>
-            <path d="M45.7583 22.2361C48.2929 17.9517 49.665 13.5145 46 14.7361C40 16.7361 36.1667 21.9028 32.5 28.2361C34.3333 25.7361 43.5 8.23614 34 12.7361C24.5 17.2361 24 28.7361 23.5 28.7361M38.5 25.2361C39.5 23.2361 39.5 21.2361 44 18.2361" stroke="url(#paint2_linear_9_7)" stroke-linecap="round"/>
-            <path d="M45.7583 22.2361C44.1434 24.9658 42.0567 27.6335 40.5 28.7361C52.3333 23.9028 59 27.7361 61.5 29.7361" stroke="url(#paint3_linear_9_7)" stroke-linecap="round"/>
-            <defs>
-            <linearGradient id="paint0_linear_9_7" x1="10" y1="38.7361" x2="67.5" y2="38.7361" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6645FC"/>
-            <stop offset="1" stop-color="#B17EF4"/>
-            </linearGradient>
-            <linearGradient id="paint1_linear_9_7" x1="32.9871" y1="15.2361" x2="32.9871" y2="21.7361" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6645FC"/>
-            <stop offset="1" stop-color="#B17EF4"/>
-            </linearGradient>
-            <linearGradient id="paint2_linear_9_7" x1="25" y1="21" x2="63.5" y2="30.5" gradientUnits="userSpaceOnUse">
-            <stop offset="0.302885" stop-color="#6645FC"/>
-            <stop offset="1" stop-color="#B17EF4"/>
-            </linearGradient>
-            <linearGradient id="paint3_linear_9_7" x1="51" y1="22.2361" x2="51" y2="29.7361" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#6645FC"/>
-            <stop offset="1" stop-color="#B17EF4"/>
-            </linearGradient>
-            </defs>
+      <a href="index.html" class="flex items-center">
+        <svg width="100" height="48" viewBox="0 0 80 70" fill="none"><path d="M18.304 34.1001C18.304 33.0601 17.84 32.5401 16.912 32.5401C16.224 32.5401 15.608 32.9321 15.064 33.7161C14.488 34.5641 14.2 35.5561 14.2 36.6921C14.2 37.8281 14.448 38.7081 14.944 39.3321C15.456 39.9401 16.152 40.2441 17.032 40.2441C18.088 40.2441 19.2 39.8121 20.368 38.9481C21.552 38.0841 22.504 37.0121 23.224 35.7321C23.544 35.9721 23.856 36.4121 24.16 37.0521C23.696 37.9801 22.832 39.0201 21.568 40.1721C20.912 40.7801 20.096 41.2921 19.12 41.7081C18.064 42.1561 17.008 42.3801 15.952 42.3801C14.528 42.3801 13.32 41.8921 12.328 40.9161C11.352 39.9401 10.864 38.6681 10.864 37.1001C10.864 35.1961 11.504 33.6521 12.784 32.4681C14.064 31.2841 15.496 30.6921 17.08 30.6921C18.312 30.6921 19.288 30.9481 20.008 31.4601C20.728 31.9721 21.088 32.6441 21.088 33.4761C21.088 34.0201 20.896 34.4921 20.512 34.8921C19.808 35.5961 18.952 35.9481 17.944 35.9481C18.184 35.1481 18.304 34.5321 18.304 34.1001ZM25.258 42.4041C24.282 42.4041 23.514 42.1321 22.954 41.5881C22.394 41.0281 22.114 40.2681 22.114 39.3081C22.114 39.0521 22.546 35.2521 23.41 27.9081C23.634 26.0201 24.234 24.8281 25.21 24.3321C25.658 24.0921 26.194 23.9721 26.818 23.9721C28.93 23.9721 29.986 24.9481 29.986 26.9001C29.986 27.0601 29.978 27.2281 29.962 27.4041C29.802 29.5481 28.458 31.7321 25.93 33.9561C25.85 34.7401 25.762 35.5001 25.666 36.2361C25.474 37.8841 25.378 38.7961 25.378 38.9721C25.378 39.8041 25.738 40.2201 26.458 40.2201C27.242 40.2201 27.97 39.7721 28.642 38.8761C29.33 37.9641 29.858 36.8041 30.226 35.3961C30.37 35.4441 30.57 35.5801 30.826 35.8041C31.082 36.0121 31.258 36.1961 31.354 36.3561C31.098 37.6841 30.522 38.9561 29.626 40.1721C29.178 40.7961 28.61 41.3081 27.922 41.7081C27.138 42.1721 26.25 42.4041 25.258 42.4041ZM26.194 31.5561C27.666 29.9401 28.402 28.4921 28.402 27.2121C28.402 26.4441 28.114 26.0601 27.538 26.0601C27.17 26.0921 26.922 26.3321 26.794 26.7801C26.682 27.2281 26.57 27.9561 26.458 28.9641C26.362 29.9721 26.298 30.5961 26.266 30.8361L26.194 31.5561ZM40.0819 30.9321C39.4259 36.1161 39.0979 38.8761 39.0979 39.2121C39.0979 39.8521 39.3299 40.1721 39.7939 40.1721C40.2099 40.1721 40.6579 39.8921 41.1379 39.3321C41.6339 38.7561 42.0259 37.9001 42.3139 36.7641C42.8419 37.3401 43.1619 37.7881 43.2739 38.1081C42.9059 39.6601 42.3219 40.7561 41.5219 41.3961C40.7219 42.0361 39.8979 42.3561 39.0499 42.3561C37.6579 42.3561 36.7219 41.8201 36.2419 40.7481C35.4099 41.8201 34.2979 42.3561 32.9059 42.3561C31.7539 42.3561 30.8659 42.0681 30.2419 41.4921C29.6179 40.9161 29.3059 40.1641 29.3059 39.2361C29.3059 39.0121 29.3459 38.6201 29.4259 38.0601C29.7939 35.0841 30.0739 32.7161 30.2659 30.9561C30.7619 30.7801 31.2179 30.6921 31.6339 30.6921C32.0499 30.6921 32.3619 30.7081 32.5699 30.7401C32.7779 30.7721 32.9779 30.8921 33.1699 31.1001C33.3619 31.3081 33.4579 31.6041 33.4579 31.9881L32.6659 38.1081C32.6339 38.3001 32.6179 38.4761 32.6179 38.6361C32.6179 39.5801 33.0499 40.0521 33.9139 40.0521C34.7139 40.0521 35.3779 39.6601 35.9059 38.8761C35.9059 38.7001 35.9219 38.4201 35.9539 38.0361L36.7459 31.6521C36.8579 31.3801 37.0979 31.1561 37.4659 30.9801C37.8339 30.7881 38.2899 30.6921 38.8339 30.6921C39.3939 30.6921 39.8099 30.7721 40.0819 30.9321ZM50.566 37.9401C50.07 39.2361 49.35 40.3001 48.406 41.1321C47.478 41.9481 46.414 42.3561 45.214 42.3561C44.014 42.3561 43.11 41.9641 42.502 41.1801C41.91 40.3801 41.614 39.4681 41.614 38.4441C41.614 38.2361 41.622 38.0281 41.638 37.8201L42.454 30.9801C42.966 30.7881 43.51 30.6921 44.086 30.6921C45.142 30.6921 45.67 31.0841 45.67 31.8681V31.9001C45.67 31.9001 45.534 32.9721 45.262 35.0841C45.006 37.1801 44.878 38.3961 44.878 38.7321C44.878 39.6441 45.318 40.1001 46.198 40.1001C46.95 40.1001 47.582 39.6761 48.094 38.8281C48.99 37.2921 49.462 35.5561 49.51 33.6201H49.294C48.622 33.6201 48.11 33.4681 47.758 33.1641C47.358 32.8121 47.158 32.3881 47.158 31.8921C47.158 31.3961 47.31 30.9961 47.614 30.6921C47.982 30.3721 48.422 30.2121 48.934 30.2121C50.15 30.2121 50.91 30.8441 51.214 32.1081C51.694 32.0441 52.038 31.9801 52.246 31.9161V33.2841L51.358 33.4281V33.8361C51.342 35.2761 51.078 36.6441 50.566 37.9401ZM59.5204 33.8361C59.5204 33.1321 59.1924 32.7801 58.5364 32.7801C57.8964 32.7801 57.3844 33.1961 57.0004 34.0281C58.7284 35.3881 59.5924 36.9161 59.5924 38.6121C59.5924 39.8441 59.2484 40.7801 58.5604 41.4201C57.8724 42.0601 57.0084 42.3801 55.9684 42.3801C54.9284 42.3801 54.1684 42.0601 53.6884 41.4201C53.2084 40.7641 52.9684 39.9401 52.9684 38.9481C52.9684 38.6441 52.9764 38.4201 52.9924 38.2761L53.8324 30.9561C54.4084 30.7801 54.9924 30.6921 55.5844 30.6921C56.5604 30.6921 57.0484 31.0521 57.0484 31.7721V31.8201C57.6884 31.0681 58.5044 30.6921 59.4964 30.6921C60.2164 30.6921 60.7764 30.8601 61.1764 31.1961C61.5764 31.5161 61.7764 31.9481 61.7764 32.4921C61.7764 33.0361 61.5684 33.4841 61.1524 33.8361C60.7524 34.1721 60.2244 34.3401 59.5684 34.3401H59.4724C59.5044 34.1641 59.5204 33.9961 59.5204 33.8361ZM58.0324 38.4921C58.0324 37.5641 57.5524 36.6361 56.5924 35.7081C56.3044 38.0121 56.1604 39.1721 56.1604 39.1881C56.1604 39.8601 56.4324 40.1961 56.9764 40.1961C57.6804 40.1961 58.0324 39.6281 58.0324 38.4921Z" fill="url(#gp1)"/><path d="M31 21.7361C30.8333 20.2361 31.4 16.8361 35 15.2361" stroke="url(#gp2)" stroke-linecap="round"/><path d="M45.7583 22.2361C48.2929 17.9517 49.665 13.5145 46 14.7361C40 16.7361 36.1667 21.9028 32.5 28.2361C34.3333 25.7361 43.5 8.23614 34 12.7361C24.5 17.2361 24 28.7361 23.5 28.7361M38.5 25.2361C39.5 23.2361 39.5 21.2361 44 18.2361" stroke="url(#gp3)" stroke-linecap="round"/><path d="M45.7583 22.2361C44.1434 24.9658 42.0567 27.6335 40.5 28.7361C52.3333 23.9028 59 27.7361 61.5 29.7361" stroke="url(#gp4)" stroke-linecap="round"/>
+          <defs><linearGradient id="gp1" x1="10" y1="38.7" x2="67.5" y2="38.7" gradientUnits="userSpaceOnUse"><stop stop-color="#6645FC"/><stop offset="1" stop-color="#B17EF4"/></linearGradient><linearGradient id="gp2" x1="32.99" y1="15.24" x2="32.99" y2="21.74" gradientUnits="userSpaceOnUse"><stop stop-color="#6645FC"/><stop offset="1" stop-color="#B17EF4"/></linearGradient><linearGradient id="gp3" x1="25" y1="21" x2="63.5" y2="30.5" gradientUnits="userSpaceOnUse"><stop offset=".3" stop-color="#6645FC"/><stop offset="1" stop-color="#B17EF4"/></linearGradient><linearGradient id="gp4" x1="51" y1="22.24" x2="51" y2="29.74" gradientUnits="userSpaceOnUse"><stop stop-color="#6645FC"/><stop offset="1" stop-color="#B17EF4"/></linearGradient></defs>
         </svg>
       </a>
-
-      <nav class="hidden md:flex gap-1.5">
-        <a href="index.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Home</a>
-        <a href="search.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full bg-brand-lt text-brand no-underline">Search</a>
-        <a href="saved.html"  class="text-sm font-medium px-3.5 py-1.5 rounded-full  text-gray-500 hover:bg-gray-100 no-underline transition-all">Saved</a>
-        <a href="profile.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-gray-500 hover:bg-gray-100 no-underline transition-all">Profile</a>
+      <nav class="hidden md:flex gap-1">
+        <a href="index.html"   class="text-sm font-medium px-3.5 py-1.5 rounded-full text-muted hover:bg-gray-100 no-underline transition-all">Home</a>
+        <a href="search.html"  class="text-sm font-medium px-3.5 py-1.5 rounded-full bg-brand-lt text-brand no-underline">Search</a>
+        <a href="saved.html"   class="text-sm font-medium px-3.5 py-1.5 rounded-full text-muted hover:bg-gray-100 no-underline transition-all">Saved</a>
+        <a href="profile.html" class="text-sm font-medium px-3.5 py-1.5 rounded-full text-muted hover:bg-gray-100 no-underline transition-all">Profile</a>
       </nav>
-
-      <div class="flex items-center gap-3">
-        <button class="relative w-9 h-9 rounded-full bg-surface flex items-center justify-center text-base border-none cursor-pointer hover:bg-brand-lt transition-colors">
-          🔔<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
+      <div class="flex items-center gap-2">
+        <button class="relative w-9 h-9 rounded-full bg-surface flex items-center justify-center border border-border cursor-pointer hover:bg-brand-lt transition-colors">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5b3ff8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
         </button>
-        <a href="profile.html" class="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-lt block">
-          <div class="w-full h-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#5b3ff8,#a78bfa)">Sa</div>
+        <a href="profile.html" style="background:linear-gradient(135deg,rgba(255,255,255,0.35),rgba(255,255,255,0.1));padding:2px;border-radius:50%" >
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs" style="background:linear-gradient(135deg,#5b3ff8,#8b6cf8)">ST</div>
         </a>
       </div>
     </div>
-    <!-- Mobile menu -->
     <div id="mobileMenu" class="hidden md:hidden px-4 pb-3 flex flex-col gap-1 border-t border-border">
-      <a href="index.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Home</a>
-      <a href="search.html"  class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Search</a>
-      <a href="saved.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl bg-brand-lt text-brand no-underline">Saved</a>
-      <a href="profile.html" class="text-sm font-medium px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 no-underline">Profile</a>
+      <a href="index.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl text-muted hover:bg-gray-100 no-underline">Home</a>
+      <a href="search.html"  class="text-sm font-medium px-4 py-2.5 rounded-xl bg-brand-lt text-brand no-underline">Search</a>
+      <a href="saved.html"   class="text-sm font-medium px-4 py-2.5 rounded-xl text-muted hover:bg-gray-100 no-underline">Saved</a>
+      <a href="profile.html" class="text-sm font-medium px-4 py-2.5 rounded-xl text-muted hover:bg-gray-100 no-underline">Profile</a>
     </div>
   </header>
 
-
-  <!-- LAYOUT: sidebar + main -->
   <div class="max-w-7xl mx-auto flex gap-0 min-h-screen">
 
-    <!-- ── SIDEBAR ── -->
-    <aside class="hidden lg:block w-60 shrink-0 px-6 py-8 border-r border-border bg-white">
-      <h3 class="text-xs font-bold text-muted uppercase tracking-widest mb-4">Filter by Category</h3>
-      <div class="flex flex-col gap-3" id="categoryFilters">
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="professional"> Professional
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="arts"> Arts
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="sports"> Sports &amp; Health
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="community"> Community
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="dance"> Dance
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="technology"> Technology
-        </label>
-        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink hover:text-brand transition-colors">
-          <input type="checkbox" class="cat-check w-4 h-4 rounded accent-brand" data-cat="clubs"> Clubs &amp; Purpose
-        </label>
+    <!-- SIDEBAR -->
+    <aside class="hidden lg:flex flex-col w-60 shrink-0 px-5 py-8 border-r border-border bg-white">
+      <h3 class="text-xs font-bold text-muted uppercase tracking-widest mb-4">Category</h3>
+      <div class="flex flex-col gap-2.5" id="categoryFilters">
+        <!-- JS renders these -->
       </div>
-      <div class="flex flex-col gap-2 mt-6">
-        <button id="applyFilters" class="w-full py-2.5 rounded-full bg-brand text-white text-sm font-semibold cursor-pointer border-none hover:bg-brand-dk transition-colors">Apply Filters</button>
-        <button id="clearFilters" class="w-full py-2.5 rounded-full border-2 border-border text-sm font-medium text-muted cursor-pointer bg-transparent hover:border-brand hover:text-brand transition-all">Clear All</button>
+      <div class="flex flex-col gap-2 mt-5">
+        <button id="applyFilters" class="w-full py-2.5 rounded-full bg-brand text-white text-sm font-semibold cursor-pointer border-none hover:bg-brand-dk transition-colors">Apply</button>
+        <button id="clearFilters" class="w-full py-2.5 rounded-full border border-border text-sm font-medium text-muted cursor-pointer bg-transparent hover:border-brand hover:text-brand transition-all">Clear All</button>
       </div>
 
       <div class="mt-8">
-        <h3 class="text-xs font-bold text-muted uppercase tracking-widest mb-3">Popular Searches</h3>
-        <div class="flex flex-wrap gap-2">
-          <button class="popular-tag px-3 py-1 rounded-full bg-surface border border-border text-xs text-ink hover:bg-brand-lt hover:border-brand hover:text-brand transition-all cursor-pointer">#Hackathon</button>
-          <button class="popular-tag px-3 py-1 rounded-full bg-surface border border-border text-xs text-ink hover:bg-brand-lt hover:border-brand hover:text-brand transition-all cursor-pointer">#Yoga</button>
-          <button class="popular-tag px-3 py-1 rounded-full bg-surface border border-border text-xs text-ink hover:bg-brand-lt hover:border-brand hover:text-brand transition-all cursor-pointer">#Networking</button>
+        <h3 class="text-xs font-bold text-muted uppercase tracking-widest mb-3">Popular</h3>
+        <div class="flex flex-wrap gap-2" id="popularTags">
+          <!-- JS renders -->
         </div>
+      </div>
+
+      <!-- Active filters badge -->
+      <div id="activeFiltersBadge" class="hidden mt-6 px-3 py-2 rounded-xl bg-brand-lt border border-brand/20">
+        <p class="text-xs text-brand font-medium" id="activeFiltersText"></p>
       </div>
     </aside>
 
-    <!-- ── RESULTS ── -->
-    <main class="flex-1 px-6 py-8">
+    <!-- MAIN -->
+    <main class="flex-1 px-5 py-7">
+
+      <!-- Header row -->
       <div class="flex items-start justify-between mb-4 flex-wrap gap-3">
         <div>
-          <h1 class="text-2xl font-bold text-ink">Search Results</h1>
-          <p class="text-muted text-sm mt-1">Discover upcoming events across campus</p>
+          <h1 class="text-xl font-bold text-ink">Search Results</h1>
+          <p class="text-muted text-sm mt-0.5">Discover upcoming events across campus</p>
         </div>
-        <span id="resultCount" class="text-xs font-semibold text-brand bg-brand-lt px-3 py-1.5 rounded-full">6 Results Found</span>
+        <div class="flex items-center gap-2">
+          <!-- Mobile filter btn -->
+          <button onclick="openMobileFilter()" class="lg:hidden inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-white text-sm font-medium text-ink cursor-pointer hover:border-brand hover:text-brand transition-all">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            Filters <span id="mobileFilterCount" class="hidden px-1.5 py-0.5 bg-brand text-white text-[10px] rounded-full font-bold"></span>
+          </button>
+          <span id="resultCount" class="text-xs font-semibold text-brand bg-brand-lt px-3 py-1.5 rounded-full"></span>
+        </div>
       </div>
 
       <!-- Search bar -->
-      <div class="relative mb-5">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted text-base">🔍</span>
-        <input id="searchInput" type="text" placeholder="Search by event name, club, or interests..."
-          class="w-full pl-10 pr-4 py-3 rounded-2xl border-2 border-border bg-white text-sm text-ink placeholder-muted focus:outline-none focus:border-brand transition-colors">
+      <div class="relative mb-4">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-muted" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6880" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="searchInput" type="text" placeholder="Search events, clubs, interests..."
+          class="w-full pl-10 pr-10 py-3 rounded-2xl border-2 border-border bg-white text-sm text-ink placeholder-muted focus:outline-none focus:border-brand transition-colors">
+        <button id="clearSearch" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border-none cursor-pointer hover:bg-gray-200 transition-colors text-sm">×</button>
       </div>
 
-      <!-- Type filter -->
-      <div class="flex gap-2 mb-6">
-        <button class="search-type-btn active inline-flex items-center gap-2 px-5 py-2 rounded-full border-2 border-brand bg-brand text-white text-sm font-medium cursor-pointer transition-all" data-type="all">📅 Events</button>
-        <button class="search-type-btn inline-flex items-center gap-2 px-5 py-2 rounded-full border-2 border-border text-sm font-medium text-muted cursor-pointer bg-white transition-all" data-type="club">🏫 Clubs</button>
+      <!-- Sort + Type row -->
+      <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div class="flex gap-2">
+          <button class="search-type-btn active inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 text-sm font-medium cursor-pointer" data-type="all">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Events
+          </button>
+          <button class="search-type-btn inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 text-sm font-medium cursor-pointer" data-type="club">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Clubs
+          </button>
+        </div>
+        <select id="sortSelect" class="text-sm border border-border rounded-xl px-3 py-1.5 bg-white text-ink cursor-pointer focus:outline-none focus:border-brand transition-colors">
+          <option value="date">Sort: Date</option>
+          <option value="name">Sort: Name A–Z</option>
+          <option value="cat">Sort: Category</option>
+        </select>
       </div>
 
       <!-- Results grid -->
-      <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      </div>
 
-        <!-- Result cards with data-cat for filtering -->
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" data-cat="technology" data-title="Annual Tech Innovation Summit 2024">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-blue-200 to-indigo-300 flex items-center justify-center text-5xl">💡</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-100 text-blue-700">Technology</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Technology &amp; Code Hub</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Annual Tech Innovation Summit 2024</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Oct 24, 2024 · 10:00 AM</div>
-              <div>📍 Main Auditorium, South Campus</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
+      <!-- Empty state -->
+      <div id="emptyState" class="py-20 text-center">
+        <div class="text-5xl mb-4">🔍</div>
+        <h3 class="font-semibold text-ink mb-1">No results found</h3>
+        <p class="text-sm text-muted mb-5">Try different keywords or clear your filters</p>
+        <button onclick="resetAll()" class="px-5 py-2 rounded-full bg-brand text-white text-sm font-medium border-none cursor-pointer hover:bg-brand-dk transition-colors">Clear all filters</button>
+      </div>
 
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" style="transition-delay:.08s" data-cat="dance" data-title="Neon Nights Dance Workshop">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center text-5xl">💃</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-pink-100 text-pink-700">Dance</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Pulse Dance Crew</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Neon Nights Dance Workshop</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Oct 26, 2024 · 04:00 PM</div>
-              <div>📍 Studio A, Arts Building</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
-
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" style="transition-delay:.16s" data-cat="professional" data-title="Startup Pitch Deck Workshop">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-amber-100 to-orange-200 flex items-center justify-center text-5xl">📊</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-orange-100 text-orange-700">Professional</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Entrepreneurship Society</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Startup Pitch Deck Workshop</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Oct 28, 2024 · 04:00 PM</div>
-              <div>📍 Business School Room 302</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
-
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" style="transition-delay:.24s" data-cat="arts" data-title="Acoustic Evening: Live Music">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-yellow-100 to-amber-200 flex items-center justify-center text-5xl">🎸</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700">Arts</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Campus Melodies</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Acoustic Evening: Live Music</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Nov 02, 2024 · 07:00 PM</div>
-              <div>📍 Student Center Lounge</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
-
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" style="transition-delay:.32s" data-cat="sports" data-title="Inter-Collegiate Football Finals">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center text-5xl">⚽</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">Sports &amp; Health</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Varsity Sports Club</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Inter-Collegiate Football Finals</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Nov 05, 2024 · 02:00 PM</div>
-              <div>📍 University Sports Grounds</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
-
-        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border transition-all duration-200 reveal" style="transition-delay:.4s" data-cat="community" data-title="Community Outreach: Clean Campus">
-          <div class="relative h-40 overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-teal-50 to-cyan-100 flex items-center justify-center text-5xl">🌍</div>
-            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-teal-100 text-teal-700">Community</span>
-            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
-            </button>
-          </div>
-          <div class="p-4">
-            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Green Earth Initiative</p>
-            <h3 class="font-bold text-sm text-ink mb-2 leading-tight">Community Outreach: Clean Campus</h3>
-            <div class="text-xs text-muted flex flex-col gap-1 mb-3">
-              <div>📅 Nov 07, 2024 · 08:00 AM</div>
-              <div>📍 Meeting Point: Main Gate</div>
-            </div>
-            <a href="event-detail.html" class="block w-full py-2 rounded-full bg-brand text-white text-xs font-semibold text-center no-underline hover:bg-brand-dk transition-colors">Register Now</a>
-          </div>
-        </div>
-
-      </div><!-- /resultsGrid -->
-
-      <!-- End of results -->
-      <div class="text-center mt-10">
-        <p class="text-muted text-sm italic mb-3">You've reached the end of the results</p>
-        <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-brand text-brand text-sm font-medium bg-transparent cursor-pointer hover:bg-brand-lt transition-all">
-          📈 See Trending Activities
+      <div id="endMessage" class="text-center mt-10 hidden">
+        <p class="text-muted text-sm italic mb-3">You've reached the end of results</p>
+        <button onclick="resetAll()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-brand text-brand text-sm font-medium bg-transparent cursor-pointer hover:bg-brand-lt transition-all">
+          See all events
         </button>
       </div>
     </main>
@@ -290,98 +276,342 @@
   <footer class="bg-ink text-white/60 px-8 pt-12 pb-7 mt-4">
     <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 mb-10">
       <div>
-        <a href="index.html" class="font-bold text-xl text-white no-underline block mb-3">cluvr</a>
-        <p class="text-sm leading-[1.7] max-w-[220px]">The ultimate platform for campus engagement and discovery. Join the cluvr today.</p>
+        <a href="index.html" class="font-bold text-xl text-white no-underline block mb-3" style="font-family:'Fraunces',serif">cluvr</a>
+        <p class="text-sm leading-relaxed max-w-[220px]">The ultimate platform for campus engagement and discovery.</p>
         <div class="flex gap-2.5 mt-5">
-          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline hover:bg-brand transition-colors">f</a>
-          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline hover:bg-brand transition-colors">ig</a>
-          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline hover:bg-brand transition-colors">𝕏</a>
-          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm no-underline hover:bg-brand transition-colors">✉</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-xs no-underline hover:bg-brand transition-colors font-bold">f</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-xs no-underline hover:bg-brand transition-colors font-bold">ig</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-xs no-underline hover:bg-brand transition-colors">𝕏</a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-xs no-underline hover:bg-brand transition-colors">✉</a>
         </div>
       </div>
-      <div><h5 class="text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Platform</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Search Events</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Clubs Directory</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Submit Event</a></div>
-      <div><h5 class="text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Community</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Campus Rules</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Safety Center</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Leaderboards</a></div>
-      <div><h5 class="text-white text-xs font-bold uppercase tracking-[.08em] mb-4">Support</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Help Center</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Contact Us</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Privacy Policy</a></div>
+      <div><h5 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Platform</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Search Events</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Clubs Directory</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Submit Event</a></div>
+      <div><h5 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Community</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Campus Rules</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Safety Center</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Leaderboards</a></div>
+      <div><h5 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Support</h5><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Help Center</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Contact Us</a><a href="#" class="block text-sm text-white/50 no-underline mb-2.5 hover:text-white transition-colors">Privacy Policy</a></div>
     </div>
     <div class="max-w-5xl mx-auto border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/40">
       <p>© 2026 cluvr. All rights reserved.</p>
-      <nav class="flex gap-5"><a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Privacy Policy</a><a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Terms of Service</a><a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Contact Us</a></nav>
+      <nav class="flex gap-5">
+        <a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Privacy</a>
+        <a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Terms</a>
+        <a href="#" class="text-white/40 no-underline hover:text-white transition-colors">Contact</a>
+      </nav>
     </div>
   </footer>
 
-  <!-- Floating scroll to top -->
-  <button id="scrollTop" class="hidden fixed bottom-6 right-6 w-11 h-11 rounded-full bg-brand text-white border-none cursor-pointer shadow-brand-lg flex items-center justify-center text-lg hover:bg-brand-dk transition-all z-50">↑</button>
+  <button id="scrollTop" class="fixed bottom-6 right-6 w-11 h-11 rounded-full bg-brand text-white border-none cursor-pointer shadow-brand-lg flex items-center justify-center hover:bg-brand-dk transition-all z-50">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
 
-  <script src="./back/app.js"></script>
   <script>
-    // Mobile menu
-    document.getElementById('menuBtn').addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('hidden');
-    });
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    const EVENTS = [
+      { id:1, type:'all', cat:'technology', title:'Annual Tech Innovation Summit', club:'Technology & Code Hub', date:'2025-10-24', dateStr:'Oct 24, 2025 · 10:00 AM', location:'Main Auditorium, South Campus', emoji:'💡', gradient:'from-blue-100 to-indigo-200', badgeBg:'bg-blue-600', catLabel:'Technology' },
+      { id:2, type:'all', cat:'dance',      title:'Neon Nights Dance Workshop',    club:'Pulse Dance Crew',       date:'2025-10-26', dateStr:'Oct 26, 2025 · 04:00 PM', location:'Studio A, Arts Building',         emoji:'💃', gradient:'from-pink-100 to-rose-200', badgeBg:'bg-pink-600',  catLabel:'Dance' },
+      { id:3, type:'all', cat:'professional',title:'Startup Pitch Deck Workshop',  club:'Entrepreneurship Society',date:'2025-10-28',dateStr:'Oct 28, 2025 · 04:00 PM', location:'Business School Room 302',        emoji:'📊', gradient:'from-amber-100 to-orange-200',badgeBg:'bg-orange-600',catLabel:'Professional' },
+      { id:4, type:'all', cat:'arts',       title:'Acoustic Evening: Live Music',  club:'Campus Melodies',        date:'2025-11-02', dateStr:'Nov 02, 2025 · 07:00 PM', location:'Student Center Lounge',           emoji:'🎸', gradient:'from-yellow-100 to-amber-200', badgeBg:'bg-yellow-600',catLabel:'Arts' },
+      { id:5, type:'all', cat:'sports',     title:'Inter-Collegiate Football Finals',club:'Varsity Sports Club',  date:'2025-11-05', dateStr:'Nov 05, 2025 · 02:00 PM', location:'University Sports Grounds',       emoji:'⚽', gradient:'from-green-100 to-emerald-200',badgeBg:'bg-green-600',catLabel:'Sports & Health' },
+      { id:6, type:'all', cat:'community',  title:'Community Outreach: Clean Campus',club:'Green Earth Initiative',date:'2025-11-07',dateStr:'Nov 07, 2025 · 08:00 AM', location:'Meeting Point: Main Gate',        emoji:'🌍', gradient:'from-teal-50 to-cyan-100',   badgeBg:'bg-teal-600',  catLabel:'Community' },
+      { id:7, type:'club',cat:'technology', title:'Tech & Code Hub',               club:'50 members',             date:'2025-10-01', dateStr:'Founded 2019',              location:'Engineering Block',              emoji:'🖥️', gradient:'from-blue-50 to-indigo-100',  badgeBg:'bg-blue-600',  catLabel:'Technology' },
+      { id:8, type:'club',cat:'arts',       title:'Creative Souls Society',         club:'38 members',             date:'2025-10-01', dateStr:'Founded 2020',              location:'Arts Pavilion',                  emoji:'🎨', gradient:'from-pink-50 to-rose-100',   badgeBg:'bg-pink-600',  catLabel:'Arts' },
+      { id:9, type:'club',cat:'sports',     title:'Varsity Sports Club',            club:'120 members',            date:'2025-10-01', dateStr:'Founded 2015',              location:'Sports Grounds',                 emoji:'🏆', gradient:'from-green-50 to-emerald-100',badgeBg:'bg-green-600',catLabel:'Sports & Health' },
+      { id:10,type:'club',cat:'community',  title:'Green Earth Initiative',         club:'65 members',             date:'2025-10-01', dateStr:'Founded 2021',              location:'Main Campus',                    emoji:'♻️', gradient:'from-teal-50 to-cyan-100',   badgeBg:'bg-teal-600',  catLabel:'Community' },
+    ];
 
-    // Search filter
-    const searchInput = document.getElementById('searchInput');
-    const cards = document.querySelectorAll('#resultsGrid .event-card');
-    const resultCount = document.getElementById('resultCount');
+    const CATEGORIES = [
+      { val:'professional', label:'Professional' },
+      { val:'arts',         label:'Arts' },
+      { val:'sports',       label:'Sports & Health' },
+      { val:'community',    label:'Community' },
+      { val:'dance',        label:'Dance' },
+      { val:'technology',   label:'Technology' },
+      { val:'clubs',        label:'Clubs & Purpose' },
+    ];
 
-    function updateCount() {
-      const visible = [...cards].filter(c => !c.classList.contains('hidden')).length;
-      resultCount.textContent = `${visible} Results Found`;
+    const POPULAR_TAGS = ['#Hackathon','#Networking','#Tech','#Community'];
+
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    let savedIds   = new Set();
+    let activeType = 'all';
+    let activeCats = new Set();
+    let searchQ    = '';
+    let sortMode   = 'date';
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    function init() {
+      buildSidebar();
+      buildMobileFilters();
+      buildPopularTags();
+      renderGrid();
+      bindEvents();
     }
 
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase();
-      cards.forEach(card => {
-        const title = card.dataset.title?.toLowerCase() || '';
-        card.classList.toggle('hidden', q && !title.includes(q));
-      });
-      updateCount();
-    });
+    function buildSidebar() {
+      const wrap = document.getElementById('categoryFilters');
+      wrap.innerHTML = CATEGORIES.map(c => `
+        <label class="flex items-center gap-2.5 cursor-pointer text-sm text-ink cat-label">
+          <input type="checkbox" class="cat-check w-4 h-4 rounded cursor-pointer" style="accent-color:#5b3ff8" data-cat="${c.val}"> ${c.label}
+        </label>`).join('');
+    }
 
-    // Category filter
-    document.getElementById('applyFilters').addEventListener('click', () => {
-      const checked = [...document.querySelectorAll('.cat-check:checked')].map(cb => cb.dataset.cat);
-      cards.forEach(card => {
-        const cat = card.dataset.cat;
-        card.classList.toggle('hidden', checked.length > 0 && !checked.includes(cat));
+    function buildMobileFilters() {
+      const wrap = document.getElementById('mobileCatFilters');
+      wrap.innerHTML = CATEGORIES.map(c => `
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-ink border border-border rounded-xl px-3 py-2 hover:border-brand hover:text-brand transition-all mobile-cat-label">
+          <input type="checkbox" class="mobile-cat-check w-3.5 h-3.5 rounded cursor-pointer" style="accent-color:#5b3ff8" data-cat="${c.val}"> ${c.label}
+        </label>`).join('');
+    }
+
+    function buildPopularTags() {
+      const wrap = document.getElementById('popularTags');
+      wrap.innerHTML = POPULAR_TAGS.map(t => `
+        <button class="popular-tag px-3 py-1 rounded-full bg-surface border border-border text-xs text-ink hover:bg-brand-lt hover:border-brand hover:text-brand transition-all cursor-pointer">${t}</button>`
+      ).join('');
+      wrap.querySelectorAll('.popular-tag').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('searchInput').value = btn.textContent.replace('#','');
+          searchQ = btn.textContent.replace('#','').toLowerCase();
+          renderGrid();
+        });
       });
-      updateCount();
-    });
-    document.getElementById('clearFilters').addEventListener('click', () => {
+    }
+
+    // ── RENDER ────────────────────────────────────────────────────────────────
+    function getFiltered() {
+      let items = EVENTS.filter(e => e.type === activeType || (activeType === 'all' && e.type === 'all'));
+      if (activeCats.size > 0) items = items.filter(e => activeCats.has(e.cat));
+      if (searchQ) {
+        const q = searchQ.toLowerCase();
+        items = items.filter(e =>
+          e.title.toLowerCase().includes(q) ||
+          e.club.toLowerCase().includes(q) ||
+          e.catLabel.toLowerCase().includes(q) ||
+          e.location.toLowerCase().includes(q)
+        );
+      }
+      // Sort
+      if (sortMode === 'name') items.sort((a,b) => a.title.localeCompare(b.title));
+      else if (sortMode === 'cat') items.sort((a,b) => a.catLabel.localeCompare(b.catLabel));
+      else items.sort((a,b) => a.date.localeCompare(b.date));
+      return items;
+    }
+
+    function renderGrid() {
+      const items = getFiltered();
+      const grid = document.getElementById('resultsGrid');
+      const empty = document.getElementById('emptyState');
+      const endMsg = document.getElementById('endMessage');
+      const countEl = document.getElementById('resultCount');
+
+      if (items.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        endMsg.classList.add('hidden');
+        countEl.textContent = '0 Results';
+      } else {
+        empty.style.display = 'none';
+        endMsg.classList.remove('hidden');
+        countEl.textContent = `${items.length} Result${items.length !== 1 ? 's' : ''}`;
+        grid.innerHTML = items.map((e, i) => buildCard(e, i)).join('');
+        // re-bind save buttons
+        grid.querySelectorAll('.save-btn').forEach(btn => {
+          const id = +btn.dataset.id;
+          if (savedIds.has(id)) setSaved(btn, true);
+          btn.addEventListener('click', () => toggleSave(btn, id));
+        });
+      }
+      updateActiveFiltersBadge();
+    }
+
+    function buildCard(e, i) {
+      const isClub = e.type === 'club';
+      const btnLabel = isClub ? 'Join Club' : 'Register Now';
+      const subLine  = isClub
+        ? `<div class="flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${e.club}</div>`
+        : `<div class="flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${e.dateStr}</div>
+           <div class="flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${e.location}</div>`;
+
+      return `
+        <div class="event-card bg-white rounded-2xl overflow-hidden border border-border animate-in" style="animation-delay:${i * 0.06}s">
+          <div class="relative h-36 overflow-hidden">
+            <div class="w-full h-full bg-gradient-to-br ${e.gradient} flex items-center justify-center text-5xl">${e.emoji}</div>
+            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase text-white ${e.badgeBg}">${e.catLabel}</span>
+            <button class="save-btn absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm" data-id="${e.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path class="save-path" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#6b6880" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="p-3.5">
+            <p class="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">${isClub ? e.catLabel : e.club}</p>
+            <h3 class="font-bold text-sm text-ink mb-2 leading-snug">${e.title}</h3>
+            <div class="text-xs text-muted flex flex-col gap-1 mb-3">${subLine}</div>
+            <button onclick="handleRegister(${e.id}, '${e.title.replace(/'/g,"\\'")}', this)" class="reg-btn w-full py-2 rounded-full bg-brand text-white text-xs font-semibold hover:bg-brand-dk transition-colors border-none cursor-pointer">${btnLabel}</button>
+          </div>
+        </div>`;
+    }
+
+    // ── SAVE ─────────────────────────────────────────────────────────────────
+    function toggleSave(btn, id) {
+      if (savedIds.has(id)) {
+        savedIds.delete(id);
+        setSaved(btn, false);
+        showToast('Removed from saved');
+      } else {
+        savedIds.add(id);
+        setSaved(btn, true);
+        showToast('✓ Event saved!');
+      }
+    }
+    function setSaved(btn, on) {
+      const path = btn.querySelector('.save-path');
+      if (!path) return;
+      if (on) { path.setAttribute('stroke','#5b3ff8'); path.setAttribute('fill','#5b3ff8'); }
+      else     { path.setAttribute('stroke','#6b6880'); path.setAttribute('fill','none'); }
+    }
+
+    // ── REGISTER ──────────────────────────────────────────────────────────────
+    function handleRegister(id, title, btn) {
+      btn.textContent = 'Registered ✓';
+      btn.style.background = '#10b981';
+      btn.disabled = true;
+      showToast(`✓ Registered for ${title}!`);
+    }
+
+    // ── RESET ─────────────────────────────────────────────────────────────────
+    function resetAll() {
+      document.getElementById('searchInput').value = '';
+      searchQ = '';
+      activeCats.clear();
       document.querySelectorAll('.cat-check').forEach(cb => cb.checked = false);
-      cards.forEach(c => c.classList.remove('hidden'));
-      updateCount();
-    });
+      document.getElementById('clearSearch').classList.add('hidden');
+      renderGrid();
+    }
 
-    // Popular tags
-    document.querySelectorAll('.popular-tag').forEach(tag => {
-      tag.addEventListener('click', () => {
-        searchInput.value = tag.textContent.replace('#','');
-        searchInput.dispatchEvent(new Event('input'));
+    // ── ACTIVE FILTERS BADGE ──────────────────────────────────────────────────
+    function updateActiveFiltersBadge() {
+      const badge = document.getElementById('activeFiltersBadge');
+      const text  = document.getElementById('activeFiltersText');
+      if (activeCats.size > 0 || searchQ) {
+        const parts = [];
+        if (searchQ) parts.push(`"${searchQ}"`);
+        if (activeCats.size > 0) parts.push([...activeCats].join(', '));
+        text.textContent = 'Filtering: ' + parts.join(' · ');
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    // ── MOBILE FILTER ────────────────────────────────────────────────────────
+    function openMobileFilter() {
+      // sync mobile checkboxes with current activeCats
+      document.querySelectorAll('.mobile-cat-check').forEach(cb => {
+        cb.checked = activeCats.has(cb.dataset.cat);
       });
-    });
-
-    // Save btn
-    document.querySelectorAll('.save-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('saved');
-        const svg = btn.querySelector('path');
-        if (btn.classList.contains('saved')) {
-          svg.setAttribute('stroke','#5b3ff8'); svg.setAttribute('fill','#5b3ff8');
-        } else {
-          svg.setAttribute('stroke','#6b6880'); svg.setAttribute('fill','none');
-        }
+      document.getElementById('mobileFilterPanel').classList.add('open');
+    }
+    function closeMobileFilter(e) {
+      if (!e || e.target === document.getElementById('mobileFilterPanel')) {
+        document.getElementById('mobileFilterPanel').classList.remove('open');
+      }
+    }
+    function applyMobileFilters() {
+      activeCats.clear();
+      document.querySelectorAll('.mobile-cat-check:checked').forEach(cb => activeCats.add(cb.dataset.cat));
+      // sync desktop checkboxes
+      document.querySelectorAll('.cat-check').forEach(cb => {
+        cb.checked = activeCats.has(cb.dataset.cat);
       });
-    });
+      updateMobileFilterCount();
+      closeMobileFilter();
+      renderGrid();
+    }
+    function clearMobileFilters() {
+      document.querySelectorAll('.mobile-cat-check').forEach(cb => cb.checked = false);
+    }
+    function updateMobileFilterCount() {
+      const el = document.getElementById('mobileFilterCount');
+      if (activeCats.size > 0) {
+        el.textContent = activeCats.size;
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
 
-    // Scroll reveal
-    const ro = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+    // ── TOAST ─────────────────────────────────────────────────────────────────
+    function showToast(msg, ms = 2500) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => t.classList.remove('show'), ms);
+    }
 
-    // Scroll top btn
-    const scrollBtn = document.getElementById('scrollTop');
-    window.addEventListener('scroll', () => scrollBtn.classList.toggle('hidden', window.scrollY < 200));
-    scrollBtn.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    // ── BIND EVENTS ───────────────────────────────────────────────────────────
+    function bindEvents() {
+      // Mobile menu
+      document.getElementById('menuBtn').addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
+      });
+
+      // Search input — real-time
+      const searchInput = document.getElementById('searchInput');
+      const clearSearchBtn = document.getElementById('clearSearch');
+      searchInput.addEventListener('input', () => {
+        searchQ = searchInput.value.toLowerCase().trim();
+        clearSearchBtn.classList.toggle('hidden', !searchQ);
+        renderGrid();
+      });
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQ = '';
+        clearSearchBtn.classList.add('hidden');
+        searchInput.focus();
+        renderGrid();
+      });
+
+      // Type toggle
+      document.querySelectorAll('.search-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.search-type-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeType = btn.dataset.type;
+          renderGrid();
+        });
+      });
+
+      // Sort
+      document.getElementById('sortSelect').addEventListener('change', e => {
+        sortMode = e.target.value;
+        renderGrid();
+      });
+
+      // Desktop category apply
+      document.getElementById('applyFilters').addEventListener('click', () => {
+        activeCats.clear();
+        document.querySelectorAll('.cat-check:checked').forEach(cb => activeCats.add(cb.dataset.cat));
+        updateMobileFilterCount();
+        renderGrid();
+        showToast(activeCats.size > 0 ? `Filtering by ${activeCats.size} categor${activeCats.size>1?'ies':'y'}` : 'All categories shown');
+      });
+
+      // Desktop clear
+      document.getElementById('clearFilters').addEventListener('click', () => {
+        activeCats.clear();
+        document.querySelectorAll('.cat-check').forEach(cb => cb.checked = false);
+        updateMobileFilterCount();
+        renderGrid();
+      });
+
+      // Scroll top
+      const scrollBtn = document.getElementById('scrollTop');
+      window.addEventListener('scroll', () => {
+        scrollBtn.style.display = window.scrollY > 200 ? 'flex' : 'none';
+      });
+      scrollBtn.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    }
+
+    init();
   </script>
 </body>
 </html>

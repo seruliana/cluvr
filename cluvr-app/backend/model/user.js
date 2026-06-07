@@ -35,6 +35,25 @@ const userSchema = new Schema({
     default: [],
   },
 
+  quizResults: {
+    interests: {
+      type: [String],
+      default: [],
+    },
+    completedAt: {
+      type: Date,
+    },
+    recommendations: {
+      clubs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Club",
+      }],
+      events: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Event",
+      }],
+    },
+  },
 
   savedClubs: [
     {
@@ -43,7 +62,6 @@ const userSchema = new Schema({
     }
   ],
 
-
   joinedEvents: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -51,16 +69,19 @@ const userSchema = new Schema({
     }
   ],
 
-
   following: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Club",
     }
   ],
 
-
   createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+
+  updatedAt: {
     type: Date,
     default: Date.now,
   }

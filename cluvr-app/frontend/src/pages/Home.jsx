@@ -199,7 +199,7 @@ export default function Home() {
           </p>
           <div className="flex gap-3 flex-wrap animate-fade-down-3">
             <button
-              onClick={scrollToDiscover}
+              onClick={() => navigate('/quiz')}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-brand text-white font-medium text-sm cursor-pointer border-none transition-all hover:-translate-y-0.5 hover:bg-brand-dk hover:shadow-brand-btn"
             >
               ✨ Take Interest Quiz

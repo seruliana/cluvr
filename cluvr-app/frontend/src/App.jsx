@@ -7,6 +7,8 @@ import ClubProfile from './pages/ClubProfile'
 import EventDetail from './pages/EventDetail'
 import Login   from './pages/Login'
 import Register from './pages/Register'
+import InterestQuiz from './pages/InterestQuiz'
+import Recommendations from './pages/Recommendations'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
 
@@ -25,6 +27,8 @@ export default function App() {
             <Route path="/event/:id" element={<EventDetail />} />
             <Route path="/login"   element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/quiz" element={<InterestQuiz />} />
+            <Route path="/recommendations" element={<Recommendations />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

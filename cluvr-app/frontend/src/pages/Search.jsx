@@ -28,6 +28,7 @@ export default function Search() {
   const [toast, setToast] = useState('')
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
   const [mobileCats, setMobileCats] = useState(new Set())
+  const [useAISearch, setUseAISearch] = useState(true)
 
   useEffect(() => {
     loadData()
@@ -36,13 +37,16 @@ export default function Search() {
   const loadData = async () => {
     try {
       setLoading(true)
+      const searchParams = searchQ ? { search: searchQ, aiSearch: useAISearch } : {}
       const [clubsRes, eventsRes] = await Promise.all([
-        clubsAPI.getAll(),
-        eventsAPI.getAll()
+        clubsAPI.getAll(searchParams),
+        eventsAPI.getAll(searchParams)
       ])
 
       const clubs = clubsRes.data || []
       const events = eventsRes.data || []
+
+      console.log('AI Search used:', clubsRes.aiSearch || eventsRes.aiSearch)
 
       // Transform clubs to item format
       const clubItems = clubs.map(club => ({
@@ -146,6 +150,15 @@ export default function Search() {
   const resetAll = () => {
     setSearchQ('')
     setActiveCats(new Set())
+    setActiveType('all')
+    setMobileCats(new Set())
+    loadData()
+    showToast('Filters reset')
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    loadData()
   }
 
   return (

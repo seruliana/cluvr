@@ -126,16 +126,86 @@ export const getProfile = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const { name, university, major, bio, interests } = req.body;
-    
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { name, university, major, bio, interests },
+      { 
+        name, 
+        university, 
+        major, 
+        bio, 
+        interests,
+        updatedAt: Date.now()
+      },
       { new: true, runValidators: true }
     );
-    
+
     res.status(200).json({
       success: true,
       data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Save quiz results
+// @route   POST /api/users/quiz-results
+// @access  Private
+export const saveQuizResults = async (req, res, next) => {
+  try {
+    const { interests, recommendations } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        quizResults: {
+          interests,
+          completedAt: new Date(),
+          recommendations: recommendations || { clubs: [], events: [] }
+        },
+        interests,
+        updatedAt: Date.now()
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get quiz results
+// @route   GET /api/users/quiz-results
+// @access  Private
+export const getQuizResults = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .select('quizResults interests');
+
+    res.status(200).json({
+      success: true,
+      data: user.quizResults
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete user account
+// @route   DELETE /api/users/account
+// @access  Private
+export const deleteAccount = async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully'
     });
   } catch (error) {
     next(error);

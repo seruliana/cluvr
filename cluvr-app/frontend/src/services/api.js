@@ -80,6 +80,23 @@ export const authAPI = {
       body: JSON.stringify(userData),
     });
   },
+
+  saveQuizResults: async (quizData) => {
+    return apiRequest('/users/quiz-results', {
+      method: 'POST',
+      body: JSON.stringify(quizData),
+    });
+  },
+
+  getQuizResults: async () => {
+    return apiRequest('/users/quiz-results');
+  },
+
+  deleteAccount: async () => {
+    return apiRequest('/users/account', {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Clubs API

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const navLinks = [
   { to: '/',        label: 'Home' },
@@ -35,6 +36,7 @@ const Logo = () => (
 export default function Header() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { isDark, toggleTheme } = useTheme()
   const { user, logout, isAuthenticated, loading } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -90,6 +92,13 @@ export default function Header() {
 
         {/* Icons */}
         <div className="flex items-center gap-3">
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-base border-none cursor-pointer hover:bg-brand-lt transition-colors"
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
           {isAuthenticated ? (
             <>
               <button className="relative w-9 h-9 rounded-full bg-surface flex items-center justify-center text-base border-none cursor-pointer hover:bg-brand-lt transition-colors">

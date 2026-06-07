@@ -48,6 +48,9 @@ export default function Home() {
       const clubs = clubsRes.data || []
       const events = eventsRes.data || []
 
+      console.log('Loaded clubs:', clubs.length)
+      console.log('Loaded events:', events.length)
+
       // Transform clubs to card format
       const clubCards = clubs.map(club => ({
         id: club._id,
@@ -75,7 +78,7 @@ export default function Home() {
         emoji: event.emoji || '📅',
         badge: '📅 Upcoming Event',
         badgeColor: 'bg-orange-50 text-orange-600',
-        badgeBg: event.category === 'Professional' ? 'bg-blue-600' : 
+        badgeBg: event.category === 'Professional' ? 'bg-blue-600' :
                  event.category === 'Arts' ? 'bg-pink-600' :
                  event.category === 'Community' ? 'bg-green-600' : 'bg-brand',
         org: event.clubId?.name || 'Campus Event',
@@ -101,6 +104,7 @@ export default function Home() {
         if (clubCards[i]) combined.push(clubCards[i])
       }
 
+      console.log('Combined cards:', combined.length)
       setCards(combined)
     } catch (error) {
       console.error('Failed to load data:', error)
@@ -214,7 +218,7 @@ export default function Home() {
             <div
               onClick={() => navigate(`/club/${currentHeroClub.id}`)}
               className="rounded-2xl overflow-hidden shadow-brand-lg h-[280px] flex flex-col justify-end p-6 transition-all duration-500 bg-gradient-to-br cursor-pointer hover:scale-105 hover:shadow-brand-xl"
-              style={{ background: currentHeroClub.gradient.includes('to-') ? `linear-gradient(135deg,${currentHeroClub.gradient.replace('from-', '').replace('to-', ', ')})` : currentHeroClub.gradient }}
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}
             >
               <div className="text-5xl mb-3">{currentHeroClub.emoji}</div>
               <h3 className="text-white font-bold text-lg">{currentHeroClub.title}</h3>
@@ -284,7 +288,10 @@ export default function Home() {
               key={card.id}
               onClick={() => navigate(card.type === 'club' ? `/club/${card.id}` : `/event/${card.id}`)}
               className="card reveal border border-border rounded-2xl overflow-hidden bg-white transition-all duration-200 hover:-translate-y-1.5 hover:shadow-brand-lg cursor-pointer"
-              style={{ transitionDelay: `${i * 0.08}s` }}
+              style={{ 
+                transitionDelay: `${i * 0.08}s`,
+                animation: `fadeUp 0.5s ${i * 0.08}s ease both`
+              }}
             >
               <div className="relative h-44 overflow-hidden">
                 <div className={`card-img-inner w-full h-full flex items-center justify-center text-5xl transition-transform duration-300 bg-gradient-to-br ${card.gradient}`}>
@@ -355,7 +362,7 @@ export default function Home() {
       </section>
 
       {/* ── CLUBS YOU MIGHT LIKE ── */}
-      <section className="reveal px-8 py-12 bg-surface border-t border-border">
+      <section className="px-8 py-12 bg-surface border-t border-border" style={{ animation: 'fadeUp 0.6s ease both' }}>
         <div className="flex items-end justify-between mb-5">
           <div>
             <h2 className="font-extrabold text-[1.7rem] text-ink tracking-tight">Clubs you might like</h2>

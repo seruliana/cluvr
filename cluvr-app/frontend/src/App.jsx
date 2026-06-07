@@ -7,21 +7,27 @@ import ClubProfile from './pages/ClubProfile'
 import EventDetail from './pages/EventDetail'
 import Login   from './pages/Login'
 import Register from './pages/Register'
+import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthProvider } from './contexts/AuthContext'
 
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/"        element={<Home />} />
-        <Route path="/search"  element={<Search />} />
-        <Route path="/saved"   element={<Saved />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/club/:id"  element={<ClubProfile />} />
-        <Route path="/event/:id" element={<EventDetail />} />
-        <Route path="/login"   element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/"        element={<Home />} />
+            <Route path="/search"  element={<Search />} />
+            <Route path="/saved"   element={<Saved />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/club/:id"  element={<ClubProfile />} />
+            <Route path="/event/:id" element={<EventDetail />} />
+            <Route path="/login"   element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

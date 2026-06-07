@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ====== Custom styles (styles.css-ээс авсан) ====== */
 body { font-family: 'Noto Sans', sans-serif; }
 
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity .5s ease, transform .5s ease; }
-.reveal.visible { opacity: 1; transform: none; }
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .5s ease,
+  transform .5s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
 
-.heart-animate { animation: heartBeat .4s ease; }
+.heart-animate {
+  animation: heartBeat .4s ease;
+}
 
 #clubStrip::-webkit-scrollbar { display: none; }
 

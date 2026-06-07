@@ -179,11 +179,13 @@ export default function ClubProfile() {
               <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-4">Information</h3>
               <div className="flex flex-col gap-3">
                 {[
-                  { icon:'📅', label:'Founding Date',    value: club.createdAt ? new Date(club.createdAt).toLocaleDateString() : 'N/A' },
-                  { icon:'👥', label:'Community Size',   value: `${club.members || 0} Active Members` },
-                  { icon:'🏫', label:'Affiliation',      value: club.affiliation || 'University Club' },
-                ].map(row => (
-                  <div key={row.label} className="flex items-start gap-2.5">
+                  { icon:'📅', label:'Founded Year',      value: club.foundedYear || 'N/A' },
+                  { icon:'👥', label:'Members',           value: `${club.members || 0} Active Members` },
+                  { icon:'📍', label:'Location',          value: club.location || 'N/A' },
+                  { icon:'📧', label:'Contact',           value: club.contact || 'N/A' },
+                  { icon:'🌐', label:'Website',           value: club.website ? <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">Visit</a> : 'N/A' },
+                ].map((row, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5">
                     <span className="text-base mt-0.5">{row.icon}</span>
                     <div>
                       <p className="text-[10px] text-muted font-medium">{row.label}</p>
@@ -197,18 +199,37 @@ export default function ClubProfile() {
             {/* Links */}
             <div className="bg-white rounded-2xl border border-border p-5">
               <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Links</h3>
-              <div className="flex gap-2">
-                {[
-                  { icon:'f', bg:'bg-blue-600' },
-                  { icon:'ig', bg:'bg-pink-600' },
-                  { icon:'🌐', bg:'bg-brand' },
-                  { icon:'✉', bg:'bg-gray-700' },
-                ].map((l, i) => (
-                  <button key={i} onClick={() => showToast('Opening link...')}
-                    className={`w-9 h-9 rounded-full ${l.bg} text-white text-xs font-bold flex items-center justify-center cursor-pointer border-none hover:opacity-80 transition-opacity`}>
-                    {l.icon}
-                  </button>
-                ))}
+              <div className="flex gap-2 flex-wrap">
+                {club.socialLinks?.facebook && (
+                  <a href={club.socialLinks.facebook} target="_blank" rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity no-underline">
+                    f
+                  </a>
+                )}
+                {club.socialLinks?.instagram && (
+                  <a href={club.socialLinks.instagram} target="_blank" rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-pink-600 text-white text-xs font-bold flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity no-underline">
+                    ig
+                  </a>
+                )}
+                {club.socialLinks?.youtube && (
+                  <a href={club.socialLinks.youtube} target="_blank" rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity no-underline">
+                    ▶
+                  </a>
+                )}
+                {club.socialLinks?.apply && (
+                  <a href={club.socialLinks.apply} target="_blank" rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity no-underline">
+                    ✉
+                  </a>
+                )}
+                {club.website && (
+                  <a href={club.website} target="_blank" rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-gray-700 text-white text-xs font-bold flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity no-underline">
+                    🌐
+                  </a>
+                )}
               </div>
             </div>
 
@@ -217,6 +238,42 @@ export default function ClubProfile() {
               <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">About</h3>
               <p className="text-xs text-muted leading-relaxed">{club.description || 'No description available'}</p>
             </div>
+
+            {/* Mission */}
+            {club.mission && (
+              <div className="bg-white rounded-2xl border border-border p-5">
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Mission</h3>
+                <p className="text-xs text-muted leading-relaxed">{club.mission}</p>
+              </div>
+            )}
+
+            {/* Vision */}
+            {club.vision && (
+              <div className="bg-white rounded-2xl border border-border p-5">
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Vision</h3>
+                <p className="text-xs text-muted leading-relaxed">{club.vision}</p>
+              </div>
+            )}
+
+            {/* Activities */}
+            {club.activities && club.activities.length > 0 && (
+              <div className="bg-white rounded-2xl border border-border p-5">
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Activities</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {club.activities.map((activity, idx) => (
+                    <span key={idx} className="px-2.5 py-1 rounded-full bg-brand-lt text-brand text-xs font-medium">{activity}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Schedule */}
+            {club.schedule && (
+              <div className="bg-white rounded-2xl border border-border p-5">
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Schedule</h3>
+                <p className="text-xs text-muted leading-relaxed">{club.schedule}</p>
+              </div>
+            )}
 
             {/* Interests */}
             <div className="bg-white rounded-2xl border border-border p-5">

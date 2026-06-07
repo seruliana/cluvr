@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import { useNavigate } from 'react-router-dom'
@@ -9,35 +9,13 @@ export default function Home() {
   const [cards, setCards] = useState([])
   const [loading, setLoading] = useState(true)
   const [filterType, setFilterType] = useState('all')
-  const [liked, setLiked] = useState({})
   const [registered, setRegistered] = useState({})
   const [followed, setFollowed] = useState({})
-  const [toast, setToast] = useState('')
-  const [userNum, setUserNum] = useState(5000)
-  const [eventNum, setEventNum] = useState(cards.length)
   const [heroClubIndex, setHeroClubIndex] = useState(0)
+  const [clubTagIndex, setClubTagIndex] = useState(0)
   const [showAllCards, setShowAllCards] = useState(false)
 
-  const showToast = (msg) => {
-    setToast(msg)
-    setTimeout(() => setToast(''), 2500)
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  // Rotate hero club every 5 seconds
-  useEffect(() => {
-    if (cards.length > 0) {
-      const interval = setInterval(() => {
-        setHeroClubIndex(prev => (prev + 1) % cards.filter(c => c.type === 'club').length)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [cards])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const [clubsRes, eventsRes] = await Promise.all([
@@ -108,25 +86,44 @@ export default function Home() {
       setCards(combined)
     } catch (error) {
       console.error('Failed to load data:', error)
-      showToast('Failed to load data')
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const handleLike = (id) => {
-    setLiked(prev => ({ ...prev, [id]: !prev[id] }))
-    showToast(liked[id] ? 'Removed from likes' : '❤️ Liked!')
-  }
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Rotate hero club every 5 seconds
+  useEffect(() => {
+    if (cards.length > 0) {
+      const interval = setInterval(() => {
+        setHeroClubIndex(prev => (prev + 1) % cards.filter(c => c.type === 'club').length)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [cards])
+
+  // Rotate club tags every 30 seconds
+  useEffect(() => {
+    const clubCount = cards.filter(c => c.type === 'club').slice(0, 6).length
+    if (clubCount > 0) {
+      const interval = setInterval(() => {
+        setClubTagIndex(prev => (prev + 1) % Math.ceil(clubCount / 4))
+      }, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [cards])
 
   const handleRegister = (id) => {
     setRegistered(prev => ({ ...prev, [id]: !prev[id] }))
-    showToast(registered[id] ? 'Registration cancelled' : '✅ Registered!')
   }
 
   const handleFollow = (id) => {
     setFollowed(prev => ({ ...prev, [id]: !prev[id] }))
-    showToast(followed[id] ? 'Unfollowed' : '✓ Following!')
   }
 
   const filteredCards = filterType === 'all'
@@ -143,12 +140,6 @@ export default function Home() {
     )
   }
 
-  const toggleLike = (e, id) => {
-    e.stopPropagation()
-    setLiked(prev => ({ ...prev, [id]: !prev[id] }))
-    showToast(liked[id] ? 'Removed from likes' : '❤️ Liked!')
-  }
-
   const handleAction = (item) => {
     if (item.type === 'club') {
       handleFollow(item.id)
@@ -161,12 +152,14 @@ export default function Home() {
     document.getElementById('Discover')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   const CLUBS = cards.filter(c => c.type === 'club').slice(0, 6).map(c => ({
+    id: c.id,
     emoji: c.emoji,
     bg: 'bg-brand-lt',
     name: c.title,
     members: c.club,
     gradient: c.gradient,
   }))
+  console.log('CLUBS:', CLUBS)
 
   const heroClubs = cards.filter(c => c.type === 'club')
   const currentHeroClub = heroClubs[heroClubIndex] || heroClubs[0]
@@ -226,10 +219,13 @@ export default function Home() {
             </div>
           )}
           <div className="flex gap-2 flex-wrap mt-4">
-            {CLUBS.slice(0, 4).map((club, idx) => (
+            {CLUBS.slice(clubTagIndex * 4, (clubTagIndex + 1) * 4).map((club, idx) => (
               <div
                 key={club.name}
-                onClick={() => navigate(`/club/${club.id}`)}
+                onClick={() => {
+                  console.log('Club clicked:', club.id, club.name)
+                  navigate(`/club/${club.id}`)
+                }}
                 className="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up cursor-pointer hover:scale-105 transition-transform"
                 style={{ animationDelay: `${(idx + 1) * 0.1}s` }}
               >
@@ -248,7 +244,10 @@ export default function Home() {
       >
         <span className="text-[11px] font-semibold text-muted whitespace-nowrap uppercase tracking-widest">Recommended Clubs</span>
         {CLUBS.slice(0, 6).map(club => (
-          <a key={club.name} onClick={() => navigate(`/club/${club.id}`)}
+          <a key={club.name} onClick={() => {
+            console.log('Strip club clicked:', club.id, club.name)
+            navigate(`/club/${club.id}`)
+          }}
             className="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150 cursor-pointer hover:bg-brand-lt">
             <span className="w-2 h-2 rounded-full bg-brand inline-block" />{club.name}
           </a>
@@ -263,7 +262,7 @@ export default function Home() {
             <h2 className="font-extrabold text-[1.7rem] text-ink tracking-tight">Discover what's happening</h2>
             <p className="text-muted text-sm mt-1">Handpicked events and clubs based on your interests.</p>
           </div>
-          <a href="#" className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-brand text-brand text-xs font-medium no-underline transition-all hover:bg-brand-lt">View All</a>
+          <a href="#" onClick={() => navigate('/search')} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-brand text-brand text-xs font-medium no-underline transition-all hover:bg-brand-lt">View All</a>
         </div>
 
         {/* Filter pills */}
@@ -302,13 +301,20 @@ export default function Home() {
                     {card.badge}
                   </span>
                 </div>
-                {/* Like btn — stopPropagation so modal doesn't open */}
+                {/* Save btn — stopPropagation so modal doesn't open */}
                 <button
-                  onClick={(e) => toggleLike(e, card.id)}
-                  className={`like-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110 ${liked[card.id] ? 'liked' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (card.type === 'club') {
+                      handleFollow(card.id)
+                    } else {
+                      handleRegister(card.id)
+                    }
+                  }}
+                  className={`save-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center text-base shadow-md transition-transform hover:scale-110 ${card.type === 'club' ? (followed[card.id] ? 'saved' : '') : (registered[card.id] ? 'saved' : '')}`}
                 >
-                  <span className={`heart block ${liked[card.id] ? 'heart-animate' : ''}`}>
-                    {liked[card.id] ? '❤️' : '🤍'}
+                  <span className="block">
+                    {card.type === 'club' ? (followed[card.id] ? '💾' : '📥') : (registered[card.id] ? '💾' : '📥')}
                   </span>
                 </button>
               </div>
@@ -316,7 +322,6 @@ export default function Home() {
               <div className="p-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-semibold text-brand">{card.org}</span>
-                  <span className="text-xs text-muted">{liked[card.id] ? 1 : 0} likes</span>
                 </div>
                 <h3 className="font-bold text-[1.05rem] text-ink mb-2 leading-tight">{card.title}</h3>
                 <p className="text-xs text-muted leading-relaxed mb-3 line-clamp-2">{card.desc}</p>
@@ -389,7 +394,7 @@ export default function Home() {
           onClick={scrollToDiscover}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-brand text-brand text-sm font-medium cursor-pointer bg-transparent transition-all hover:bg-brand-lt"
         >
-          Search all <strong className="font-semibold">{eventNum}+</strong> Activities
+          Search all <strong className="font-semibold">{cards.filter(c => c.type === 'event').length}+</strong> Activities
         </button>
       </div>
 

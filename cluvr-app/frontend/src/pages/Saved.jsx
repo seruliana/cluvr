@@ -1,18 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import { useAuth } from '../contexts/AuthContext'
-import { favoritesAPI, userActionsAPI } from '../services/api'
+import { authAPI, clubsAPI, eventsAPI } from '../services/api'
 
 export default function Saved() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [tab, setTab] = useState('event')
-  const [favorites, setFavorites] = useState([])
+  const [savedItems, setSavedItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [removedIds, setRemovedIds] = useState(new Set())
-  const [registered, setRegistered] = useState({})
   const [toast, setToast] = useState('')
 
   const showToast = (msg) => {
@@ -20,26 +18,47 @@ export default function Saved() {
     setTimeout(() => setToast(''), 2500)
   }
 
+  const loadSavedItems = useCallback(async () => {
+    try {
+      setLoading(true)
+      if (!user) return
+
+      if (tab === 'club') {
+        // Load saved clubs from user.savedClubs
+        if (user.savedClubs && user.savedClubs.length > 0) {
+          const clubPromises = user.savedClubs.map(clubId => clubsAPI.getById(clubId))
+          const clubs = await Promise.all(clubPromises)
+          setSavedItems(clubs.map(c => c.data).filter(Boolean))
+        } else {
+          setSavedItems([])
+        }
+      } else {
+        // Load joined events from user.joinedEvents
+        if (user.joinedEvents && user.joinedEvents.length > 0) {
+          const eventPromises = user.joinedEvents.map(eventId => eventsAPI.getById(eventId))
+          const events = await Promise.all(eventPromises)
+          setSavedItems(events.map(e => e.data).filter(Boolean))
+        } else {
+          setSavedItems([])
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load saved items:', error)
+      showToast('Failed to load saved items')
+    } finally {
+      setLoading(false)
+    }
+  }, [user, tab])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
-    loadFavorites()
-  }, [isAuthenticated, tab, navigate])
-
-  const loadFavorites = async () => {
-    try {
-      setLoading(true)
-      const data = await favoritesAPI.getAll({ type: tab === 'event' ? 'event' : 'club' })
-      setFavorites(data.data || [])
-    } catch (error) {
-      console.error('Failed to load favorites:', error)
-      showToast('Failed to load saved items')
-    } finally {
-      setLoading(false)
-    }
-  }
+    loadSavedItems()
+  }, [isAuthenticated, navigate, loadSavedItems])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Scroll reveal
   useEffect(() => {
@@ -53,44 +72,42 @@ export default function Saved() {
 
   const removeItem = async (id) => {
     try {
-      await favoritesAPI.remove(id)
-      setRemovedIds(prev => new Set([...prev, id]))
+      if (tab === 'club') {
+        await authAPI.saveClub(id)
+      } else {
+        await authAPI.joinEvent(id)
+      }
       showToast('Removed from saved')
-      loadFavorites()
+      // Reload user profile to get updated data
+      await loadSavedItems()
     } catch (error) {
-      console.error('Failed to remove favorite:', error)
+      console.error('Failed to remove item:', error)
       showToast('Failed to remove item')
-    }
-  }
-
-  const handleRegister = async (id) => {
-    try {
-      await userActionsAPI.joinEvent(id)
-      setRegistered(prev => ({ ...prev, [id]: true }))
-      showToast('✅ Registered!')
-    } catch (error) {
-      console.error('Failed to register:', error)
-      showToast('Failed to register')
     }
   }
 
   const clearAll = async () => {
     if (window.confirm('Remove all saved items?')) {
       try {
-        for (const fav of favorites) {
-          await favoritesAPI.remove(fav._id)
+        if (tab === 'club' && user.savedClubs) {
+          for (const clubId of user.savedClubs) {
+            await authAPI.saveClub(clubId)
+          }
+        } else if (tab === 'event' && user.joinedEvents) {
+          for (const eventId of user.joinedEvents) {
+            await authAPI.joinEvent(eventId)
+          }
         }
-        setRemovedIds(new Set(favorites.map(f => f._id)))
         showToast('All items removed')
-        loadFavorites()
+        await loadSavedItems()
       } catch (error) {
-        console.error('Failed to clear favorites:', error)
+        console.error('Failed to clear items:', error)
         showToast('Failed to clear items')
       }
     }
   }
 
-  const visibleItems = favorites.filter(f => !removedIds.has(f._id))
+  const visibleItems = savedItems
 
   if (loading) {
     return (
@@ -151,13 +168,12 @@ export default function Saved() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {visibleItems.map((fav, i) => {
-              const item = fav.itemId
+            {visibleItems.map((item, i) => {
               if (!item) return null
-              
+
               return (
-                <div key={fav._id} className="event-card bg-white rounded-2xl overflow-hidden border border-border reveal"
-                style={{ 
+                <div key={item._id} className="event-card bg-white rounded-2xl overflow-hidden border border-border reveal"
+                style={{
                   transitionDelay: `${i * 0.08}s`,
                   animation: `fadeUp 0.5s ${i * 0.08}s ease both`
                 }}>
@@ -165,7 +181,7 @@ export default function Saved() {
                     <div className={`w-full h-full bg-gradient-to-br ${item.gradient || 'from-brand-lt to-violet-200'} flex items-center justify-center text-6xl select-none`}>
                       {item.emoji || '📌'}
                     </div>
-                    <button onClick={() => removeItem(fav._id)}
+                    <button onClick={() => removeItem(item._id)}
                       className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 border-none cursor-pointer flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke="#5b3ff8" strokeWidth="2" fill="#5b3ff8"/>
@@ -180,11 +196,8 @@ export default function Saved() {
                         <div className="flex items-center gap-1.5 text-xs text-muted mt-2 mb-1">📅 {item.date || 'TBD'}</div>
                         <div className="flex items-center gap-1.5 text-xs text-muted mb-4">📍 {item.location || 'TBD'}</div>
                         <button
-                          onClick={() => !registered[item._id] && handleRegister(item._id)}
-                          disabled={registered[item._id]}
-                          className="w-full py-2.5 rounded-full text-white text-sm font-semibold cursor-pointer border-none transition-colors"
-                          style={{ background: registered[item._id] ? '#10b981' : '#5b3ff8' }}>
-                          {registered[item._id] ? '✅ Registered!' : 'Register'}
+                          className="w-full py-2.5 rounded-full bg-green-500 text-white text-sm font-semibold cursor-pointer border-none transition-colors">
+                          ✅ Registered
                         </button>
                       </>
                     ) : (

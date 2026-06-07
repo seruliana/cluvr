@@ -156,6 +156,10 @@ export const saveQuizResults = async (req, res, next) => {
   try {
     const { interests, recommendations } = req.body;
 
+    console.log('Saving quiz results for user:', req.user.id);
+    console.log('Interests:', interests);
+    console.log('Recommendations:', recommendations);
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
       {
@@ -170,11 +174,14 @@ export const saveQuizResults = async (req, res, next) => {
       { new: true, runValidators: true }
     );
 
+    console.log('User updated with quiz results:', user.quizResults);
+
     res.status(200).json({
       success: true,
       data: user
     });
   } catch (error) {
+    console.error('Error saving quiz results:', error);
     next(error);
   }
 };
@@ -219,23 +226,31 @@ export const saveClub = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
     const clubId = req.params.clubId;
-    
+
+    console.log('Saving club for user:', req.user.id);
+    console.log('Club ID:', clubId);
+
     const isSaved = user.savedClubs.includes(clubId);
-    
+
     if (isSaved) {
       user.savedClubs.pull(clubId);
+      console.log('Removed club from saved');
     } else {
       user.savedClubs.push(clubId);
+      console.log('Added club to saved');
     }
-    
+
     await user.save();
-    
+
+    console.log('Saved clubs after update:', user.savedClubs);
+
     res.status(200).json({
       success: true,
       saved: !isSaved,
       data: user.savedClubs
     });
   } catch (error) {
+    console.error('Error saving club:', error);
     next(error);
   }
 };
@@ -247,23 +262,67 @@ export const joinEvent = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
     const eventId = req.params.eventId;
-    
+
+    console.log('Joining event for user:', req.user.id);
+    console.log('Event ID:', eventId);
+
     const isJoined = user.joinedEvents.includes(eventId);
-    
+
     if (isJoined) {
       user.joinedEvents.pull(eventId);
+      console.log('Removed event from joined');
     } else {
       user.joinedEvents.push(eventId);
+      console.log('Added event to joined');
     }
-    
+
     await user.save();
-    
+
+    console.log('Joined events after update:', user.joinedEvents);
+
     res.status(200).json({
       success: true,
       joined: !isJoined,
       data: user.joinedEvents
     });
   } catch (error) {
+    console.error('Error joining event:', error);
+    next(error);
+  }
+};
+
+// @desc    Follow/Unfollow club
+// @route   POST /api/users/follow-club/:clubId
+// @access  Private
+export const followClub = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const clubId = req.params.clubId;
+
+    console.log('Following club for user:', req.user.id);
+    console.log('Club ID:', clubId);
+
+    const isFollowing = user.following.includes(clubId);
+
+    if (isFollowing) {
+      user.following.pull(clubId);
+      console.log('Removed club from following');
+    } else {
+      user.following.push(clubId);
+      console.log('Added club to following');
+    }
+
+    await user.save();
+
+    console.log('Following clubs after update:', user.following);
+
+    res.status(200).json({
+      success: true,
+      following: !isFollowing,
+      data: user.following
+    });
+  } catch (error) {
+    console.error('Error following club:', error);
     next(error);
   }
 };

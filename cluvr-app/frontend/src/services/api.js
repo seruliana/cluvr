@@ -97,6 +97,12 @@ export const authAPI = {
       method: 'DELETE',
     });
   },
+
+  followClub: async (clubId) => {
+    return apiRequest(`/users/follow-club/${clubId}`, {
+      method: 'POST',
+    });
+  },
 };
 
 // Clubs API

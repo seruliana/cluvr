@@ -157,7 +157,10 @@ export default function Saved() {
               
               return (
                 <div key={fav._id} className="event-card bg-white rounded-2xl overflow-hidden border border-border reveal"
-                  style={{ transitionDelay: `${i * 0.08}s` }}>
+                style={{ 
+                  transitionDelay: `${i * 0.08}s`,
+                  animation: `fadeUp 0.5s ${i * 0.08}s ease both`
+                }}>
                   <div className="relative h-44 overflow-hidden">
                     <div className={`w-full h-full bg-gradient-to-br ${item.gradient || 'from-brand-lt to-violet-200'} flex items-center justify-center text-6xl select-none`}>
                       {item.emoji || '📌'}

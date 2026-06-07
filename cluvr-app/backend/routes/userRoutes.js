@@ -8,7 +8,8 @@ import {
   getQuizResults,
   deleteAccount,
   saveClub,
-  joinEvent
+  joinEvent,
+  followClub
 } from '../controllers/userController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -26,5 +27,6 @@ router.delete('/account', protect, deleteAccount);
 
 router.post('/save-club/:clubId', protect, saveClub);
 router.post('/join-event/:eventId', protect, joinEvent);
+router.post('/follow-club/:clubId', protect, followClub);
 
 export default router;

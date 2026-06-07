@@ -15,6 +15,8 @@ export default function Home() {
   const [toast, setToast] = useState('')
   const [userNum, setUserNum] = useState(5000)
   const [eventNum, setEventNum] = useState(cards.length)
+  const [heroClubIndex, setHeroClubIndex] = useState(0)
+  const [showAllCards, setShowAllCards] = useState(false)
 
   const showToast = (msg) => {
     setToast(msg)
@@ -24,6 +26,16 @@ export default function Home() {
   useEffect(() => {
     loadData()
   }, [])
+
+  // Rotate hero club every 5 seconds
+  useEffect(() => {
+    if (cards.length > 0) {
+      const interval = setInterval(() => {
+        setHeroClubIndex(prev => (prev + 1) % cards.filter(c => c.type === 'club').length)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [cards])
 
   const loadData = async () => {
     try {
@@ -113,9 +125,11 @@ export default function Home() {
     showToast(followed[id] ? 'Unfollowed' : '✓ Following!')
   }
 
-  const filteredCards = filterType === 'all' 
-    ? cards 
+  const filteredCards = filterType === 'all'
+    ? cards
     : cards.filter(c => c.type === filterType)
+
+  const displayedCards = showAllCards ? filteredCards : filteredCards.slice(0, 6)
 
   if (loading) {
     return (
@@ -146,8 +160,12 @@ export default function Home() {
     emoji: c.emoji,
     bg: 'bg-brand-lt',
     name: c.title,
-    members: c.club
+    members: c.club,
+    gradient: c.gradient,
   }))
+
+  const heroClubs = cards.filter(c => c.type === 'club')
+  const currentHeroClub = heroClubs[heroClubIndex] || heroClubs[0]
 
   return (
     <div className="bg-white text-ink overflow-x-hidden">
@@ -192,28 +210,27 @@ export default function Home() {
         </div>
 
         <div className="hidden md:block relative z-10 pl-6">
-          <div
-            className="rounded-2xl overflow-hidden shadow-brand-lg h-[280px] flex flex-col justify-end p-6"
-            style={{ background: 'linear-gradient(135deg,#3a22c7,#7c3aed)' }}
-          >
-            <div className="text-5xl mb-3">📸</div>
-            <h3 className="text-white font-bold text-lg">NUM Photography Club</h3>
-            <p className="text-white/70 text-xs mt-1">📍 Main Building room 312 · 142 Active Members</p>
-          </div>
+          {currentHeroClub && (
+            <div
+              onClick={() => navigate(`/club/${currentHeroClub.id}`)}
+              className="rounded-2xl overflow-hidden shadow-brand-lg h-[280px] flex flex-col justify-end p-6 transition-all duration-500 bg-gradient-to-br cursor-pointer hover:scale-105 hover:shadow-brand-xl"
+              style={{ background: currentHeroClub.gradient.includes('to-') ? `linear-gradient(135deg,${currentHeroClub.gradient.replace('from-', '').replace('to-', ', ')})` : currentHeroClub.gradient }}
+            >
+              <div className="text-5xl mb-3">{currentHeroClub.emoji}</div>
+              <h3 className="text-white font-bold text-lg">{currentHeroClub.title}</h3>
+              <p className="text-white/70 text-xs mt-1">📍 {currentHeroClub.location} · {currentHeroClub.club}</p>
+            </div>
+          )}
           <div className="flex gap-2 flex-wrap mt-4">
-            {[
-              { bg: 'bg-orange-100', emoji: '🤖', label: 'Robotics Club', delay: '.1s' },
-              { bg: 'bg-green-100',  emoji: '🌿', label: 'Eco Society',   delay: '.2s' },
-              { bg: 'bg-pink-100',   emoji: '💃', label: 'Dance Team',    delay: '.3s' },
-              { bg: 'bg-brand-lt',   emoji: '🎙️', label: 'Debate',        delay: '.4s' },
-            ].map(item => (
+            {CLUBS.slice(0, 4).map((club, idx) => (
               <div
-                key={item.label}
-                className="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up"
-                style={{ animationDelay: item.delay }}
+                key={club.name}
+                onClick={() => navigate(`/club/${club.id}`)}
+                className="flex items-center gap-2 bg-white rounded-full px-3.5 py-2 shadow-brand text-sm font-medium text-ink animate-fade-up cursor-pointer hover:scale-105 transition-transform"
+                style={{ animationDelay: `${(idx + 1) * 0.1}s` }}
               >
-                <span className={`w-6 h-6 rounded-full ${item.bg} flex items-center justify-center text-sm`}>{item.emoji}</span>
-                {item.label}
+                <span className="w-6 h-6 rounded-full bg-brand-lt flex items-center justify-center text-sm">{club.emoji}</span>
+                {club.name}
               </div>
             ))}
           </div>
@@ -226,16 +243,13 @@ export default function Home() {
         style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
       >
         <span className="text-[11px] font-semibold text-muted whitespace-nowrap uppercase tracking-widest">Recommended Clubs</span>
-        {['Hackum','Art Soc','Finance','Debate','Chess','Music'].map(name => (
-          <a key={name} href="#"
-            className="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150">
-            <span className="w-2 h-2 rounded-full bg-brand inline-block" />{name}
+        {CLUBS.slice(0, 6).map(club => (
+          <a key={club.name} onClick={() => navigate(`/club/${club.id}`)}
+            className="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline transition-all duration-150 cursor-pointer hover:bg-brand-lt">
+            <span className="w-2 h-2 rounded-full bg-brand inline-block" />{club.name}
           </a>
         ))}
-        <a href="#" className="strip-club flex items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface border border-border text-sm font-medium text-ink no-underline">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Eco
-        </a>
-        <a href="#" className="whitespace-nowrap text-sm font-semibold text-brand no-underline px-2">+ more</a>
+        <a href="#" onClick={scrollToDiscover} className="whitespace-nowrap text-sm font-semibold text-brand no-underline px-2 cursor-pointer">+ more</a>
       </div>
 
       {/* ── DISCOVER ── */}
@@ -264,8 +278,8 @@ export default function Home() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCards.map((card, i) => (
-            
+          {displayedCards.map((card, i) => (
+
             <div
               key={card.id}
               onClick={() => navigate(card.type === 'club' ? `/club/${card.id}` : `/event/${card.id}`)}
@@ -326,6 +340,18 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Load More Button */}
+        {filteredCards.length > 6 && !showAllCards && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setShowAllCards(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-brand text-brand text-sm font-medium cursor-pointer bg-transparent transition-all hover:bg-brand-lt"
+            >
+              Load More ({filteredCards.length - 6} more)
+            </button>
+          </div>
+        )}
       </section>
 
       {/* ── CLUBS YOU MIGHT LIKE ── */}

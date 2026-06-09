@@ -154,7 +154,6 @@ export default function ClubProfile() {
               <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${club.gradient || 'from-slate-100 to-blue-100'} flex items-center justify-center text-4xl mb-3 shadow-brand`}>
                 {club.emoji || '📷'}
               </div>
-              <div className="w-5 h-5 rounded-full bg-green-400 border-2 border-white -mt-3 mb-2 self-end mr-4" />
               <h1 className="font-bold text-lg text-ink leading-tight mb-1">{club.name}</h1>
               <p className="text-xs text-muted mb-4">{club.status || 'Active Club'}</p>
               <button

@@ -8,10 +8,13 @@ const openai = new OpenAI({
 
 export const getRecommendations = async (req, res) => {
   try {
-    const { interests } = req.body;
+    const { interests, tags, answers } = req.body;
 
-    if (!interests || interests.length === 0) {
-      return res.status(400).json({ message: 'Interests are required' });
+    // Use tags if available, otherwise fall back to interests
+    const userTags = tags && tags.length > 0 ? tags : interests;
+
+    if (!userTags || userTags.length === 0) {
+      return res.status(400).json({ message: 'Interests or tags are required' });
     }
 
     // Fetch all clubs and events
@@ -34,11 +37,18 @@ export const getRecommendations = async (req, res) => {
       description: event.description.substring(0, 200),
     }));
 
-    // Create the prompt for OpenAI
+    // Create the prompt for OpenAI with matching logic
     const prompt = `
 You are a club and event recommendation system for a university. 
 
-User interests: ${interests.join(', ')}
+User interests and tags: ${userTags.join(', ')}
+
+Matching logic examples:
+- Design + creative → Design club, Drawing club, Photography club
+- Tech + problem solving → Coding club, AI club, Developer club
+- Social + people → Volunteer club, Debate club, Leadership club
+- Sport + challenge → Running club, Basketball club, Fitness club
+- Learning + research → Language club, Academic club
 
 Available clubs:
 ${clubSummary.map(c => `- ${c.name} (Category: ${c.category}, Tags: ${c.tags.join(', ')})`).join('\n')}
@@ -46,12 +56,13 @@ ${clubSummary.map(c => `- ${c.name} (Category: ${c.category}, Tags: ${c.tags.joi
 Available events:
 ${eventSummary.map(e => `- ${e.title} (Category: ${e.category})`).join('\n')}
 
-Based on the user's interests, recommend the top 5 clubs and top 5 events that would be most relevant. 
+Based on the user's interests and tags, recommend the top 5 clubs and top 5 events that would be most relevant. 
+Use the matching logic to find clubs that align with the user's preferences.
 Return your response as a JSON object with this exact structure:
 {
   "clubs": ["club_id_1", "club_id_2", ...],
   "events": ["event_id_1", "event_id_2", ...],
-  "explanation": "Brief explanation of why these recommendations were made"
+  "explanation": "Brief explanation of why these recommendations were made based on the user's interests"
 }
 
 Only return the JSON, no other text.
@@ -63,7 +74,7 @@ Only return the JSON, no other text.
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that provides club and event recommendations based on user interests. Always respond with valid JSON."
+          content: "You are a helpful assistant that provides club and event recommendations based on user interests and tags. Always respond with valid JSON."
         },
         {
           role: "user",
@@ -88,17 +99,19 @@ Only return the JSON, no other text.
       recommendations = {
         clubs: clubs
           .filter(club => 
-            interests.some(interest => 
-              club.tags.some(tag => tag.toLowerCase().includes(interest.toLowerCase())) ||
-              club.category.toLowerCase().includes(interest.toLowerCase())
+            userTags.some(tag => 
+              club.tags.some(clubTag => clubTag.toLowerCase().includes(tag.toLowerCase())) ||
+              club.category.toLowerCase().includes(tag.toLowerCase()) ||
+              club.name.toLowerCase().includes(tag.toLowerCase())
             )
           )
           .slice(0, 5)
           .map(club => club._id.toString()),
         events: events
           .filter(event =>
-            interests.some(interest =>
-              event.category.toLowerCase().includes(interest.toLowerCase())
+            userTags.some(tag =>
+              event.category.toLowerCase().includes(tag.toLowerCase()) ||
+              event.title.toLowerCase().includes(tag.toLowerCase())
             )
           )
           .slice(0, 5)
@@ -122,23 +135,26 @@ Only return the JSON, no other text.
     
     // Fallback to simple matching if API fails
     try {
-      const { interests } = req.body;
+      const { interests, tags } = req.body;
+      const userTags = tags && tags.length > 0 ? tags : interests;
       const clubs = await Club.find();
       const events = await Event.find().populate('clubId');
 
       const recommendedClubs = clubs
         .filter(club => 
-          interests.some(interest => 
-            club.tags.some(tag => tag.toLowerCase().includes(interest.toLowerCase())) ||
-            club.category.toLowerCase().includes(interest.toLowerCase())
+          userTags.some(tag => 
+            club.tags.some(clubTag => clubTag.toLowerCase().includes(tag.toLowerCase())) ||
+            club.category.toLowerCase().includes(tag.toLowerCase()) ||
+            club.name.toLowerCase().includes(tag.toLowerCase())
           )
         )
         .slice(0, 5);
 
       const recommendedEvents = events
         .filter(event =>
-          interests.some(interest =>
-            event.category.toLowerCase().includes(interest.toLowerCase())
+          userTags.some(tag =>
+            event.category.toLowerCase().includes(tag.toLowerCase()) ||
+            event.title.toLowerCase().includes(tag.toLowerCase())
           )
         )
         .slice(0, 5);
@@ -146,7 +162,7 @@ Only return the JSON, no other text.
       res.json({
         clubs: recommendedClubs,
         events: recommendedEvents,
-        explanation: "AI service unavailable, using keyword matching based on your interests."
+        explanation: "AI service unavailable, using keyword matching based on your interests and tags."
       });
     } catch (fallbackError) {
       res.status(500).json({ message: 'Failed to get recommendations' });

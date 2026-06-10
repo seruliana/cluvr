@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import { useAuth } from '../contexts/AuthContext'
-import { authAPI } from '../services/api'
+import { authAPI, recommendationsAPI } from '../services/api'
 
 const quizQuestions = [
   {
@@ -134,7 +134,6 @@ export default function InterestQuiz() {
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      // Collect all tags from answers
       const allTags = []
       Object.entries(answers).forEach(([questionId, selectedOption]) => {
         const question = quizQuestions.find(q => q.id === parseInt(questionId))
@@ -151,47 +150,27 @@ export default function InterestQuiz() {
         }
       })
 
-      // Get AI recommendations
-      const response = await fetch('http://localhost:4000/api/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          answers,
-          tags: allTags,
-          interests: allTags 
-        }),
+      const data = await recommendationsAPI.get({
+        answers,
+        tags: allTags,
+        interests: allTags,
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Recommendations:', data)
+      localStorage.setItem('recommendations', JSON.stringify(data))
 
-        // Save quiz results to database if authenticated
-        if (isAuthenticated && user) {
-          await authAPI.saveQuizResults({
-            answers,
-            tags: allTags,
-            interests: allTags,
-            recommendations: {
-              clubs: data.clubs.map(c => c._id),
-              events: data.events.map(e => e._id),
-            }
-          })
-        }
-
-        // Store recommendations in localStorage and navigate
-        localStorage.setItem('recommendations', JSON.stringify(data))
-        navigate('/recommendations')
-      } else {
-        console.error('Failed to get recommendations')
-        // Still save interests even if recommendations fail
-        if (isAuthenticated && user) {
-          await authAPI.updateProfile({ interests: allTags })
-        }
-        navigate('/profile')
+      if (isAuthenticated && user) {
+        await authAPI.saveQuizResults({
+          answers,
+          tags: allTags,
+          interests: allTags,
+          recommendations: {
+            clubs: (data.clubs || []).map(c => c._id),
+            events: (data.events || []).map(e => e._id),
+          },
+        })
       }
+
+      navigate('/')
     } catch (error) {
       console.error('Error submitting quiz:', error)
       // Still save interests even if error occurs

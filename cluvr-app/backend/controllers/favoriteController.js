@@ -14,7 +14,10 @@ export const getFavorites = async (req, res, next) => {
     }
     
     const favorites = await Favorite.find(query)
-      .populate('itemId')
+      .populate({
+        path: 'itemId',
+        populate: { path: 'clubId', select: 'name emoji image' },
+      })
       .sort({ createdAt: -1 });
     
     res.status(200).json({
@@ -37,7 +40,8 @@ export const addFavorite = async (req, res, next) => {
     const favorite = await Favorite.create({
       user: req.user.id,
       itemType,
-      itemId
+      itemId,
+      itemModel: itemType === 'club' ? 'Club' : 'Event',
     });
     
     res.status(201).json({

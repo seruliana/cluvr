@@ -1,15 +1,15 @@
 const API_BASE_URL = 'http://localhost:4000/api';
 
-// Helper function to handle API responses
 async function handleResponse(response) {
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    const error = new Error(data.message || 'Something went wrong');
+    error.status = response.status;
+    throw error;
   }
   return data;
 }
 
-// Auth helpers
 export function getToken() {
   return localStorage.getItem('token');
 }
@@ -26,7 +26,6 @@ export function isAuthenticated() {
   return !!getToken();
 }
 
-// Generic API request with auth
 async function apiRequest(endpoint, options = {}) {
   const token = getToken();
   const headers = {
@@ -46,7 +45,6 @@ async function apiRequest(endpoint, options = {}) {
   return handleResponse(response);
 }
 
-// Auth API
 export const authAPI = {
   register: async (userData) => {
     const data = await apiRequest('/users/register', {
@@ -100,6 +98,18 @@ export const authAPI = {
 
   followClub: async (clubId) => {
     return apiRequest(`/users/follow-club/${clubId}`, {
+      method: 'POST',
+    });
+  },
+
+  saveClub: async (clubId) => {
+    return apiRequest(`/users/save-club/${clubId}`, {
+      method: 'POST',
+    });
+  },
+
+  joinEvent: async (eventId) => {
+    return apiRequest(`/users/join-event/${eventId}`, {
       method: 'POST',
     });
   },
@@ -206,7 +216,15 @@ export const favoritesAPI = {
   },
 };
 
-// User actions API
+export const recommendationsAPI = {
+  get: async (payload) => {
+    return apiRequest('/recommendations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
 export const userActionsAPI = {
   saveClub: async (clubId) => {
     return apiRequest(`/users/save-club/${clubId}`, {

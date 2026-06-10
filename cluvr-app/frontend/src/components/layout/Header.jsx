@@ -56,7 +56,7 @@ export default function Header() {
   if (loading) return null
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border">
+    <header className="sticky top-0 z-50 bg-card/95 dark:bg-card/95 backdrop-blur-xl border-b border-border">
       <div className="flex items-center justify-between px-6 h-14 max-w-6xl mx-auto">
 
         {/* Hamburger */}
@@ -64,9 +64,9 @@ export default function Header() {
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden flex flex-col gap-1.5 p-1.5 rounded-md border-none bg-transparent cursor-pointer"
         >
-          <span className="block w-5 h-0.5 bg-gray-800 rounded" />
-          <span className="block w-5 h-0.5 bg-gray-800 rounded" />
-          <span className="block w-5 h-0.5 bg-gray-800 rounded" />
+          <span className="block w-5 h-0.5 bg-ink rounded" />
+          <span className="block w-5 h-0.5 bg-ink rounded" />
+          <span className="block w-5 h-0.5 bg-ink rounded" />
         </button>
 
         {/* Logo */}
@@ -83,7 +83,7 @@ export default function Header() {
               className={`text-sm font-medium px-3.5 py-1.5 rounded-full border-none cursor-pointer transition-all
                 ${pathname === link.to
                   ? 'bg-brand-lt text-brand'
-                  : 'text-gray-500 hover:bg-gray-100'}`}
+                  : 'text-muted hover:bg-surface dark:hover:bg-surface'}`}
             >
               {link.label}
             </button>
@@ -152,7 +152,7 @@ export default function Header() {
               className={`text-sm font-medium px-4 py-2.5 rounded-xl text-left border-none cursor-pointer
                 ${pathname === link.to
                   ? 'bg-brand-lt text-brand'
-                  : 'text-gray-500 hover:bg-gray-100'}`}
+                  : 'text-muted hover:bg-surface dark:hover:bg-surface'}`}
             >
               {link.label}
             </button>

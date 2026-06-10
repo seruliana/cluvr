@@ -101,7 +101,7 @@ export default function Recommendations() {
         )}
 
         {/* No recommendations */}
-        {(!recommendations.clubs || recommendations.clubs.length === 0) && 
+        {(!recommendations.clubs || recommendations.clubs.length === 0) &&
          (!recommendations.events || recommendations.events.length === 0) && (
           <div className="text-center py-12">
             <p className="text-muted text-lg">No recommendations found. Try adjusting your interests!</p>

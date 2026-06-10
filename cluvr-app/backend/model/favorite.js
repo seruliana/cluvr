@@ -18,6 +18,13 @@ const favoriteSchema = new Schema({
   itemId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    refPath: 'itemModel',
+  },
+
+  itemModel: {
+    type: String,
+    enum: ['Club', 'Event'],
+    required: true,
   },
 
   createdAt: {
@@ -26,7 +33,6 @@ const favoriteSchema = new Schema({
   }
 });
 
-// Compound index to prevent duplicates
 favoriteSchema.index({ user: 1, itemType: 1, itemId: 1 }, { unique: true });
 
 export default model("Favorite", favoriteSchema);

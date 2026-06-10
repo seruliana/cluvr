@@ -107,9 +107,10 @@ export const login = async (req, res, next) => {
 export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id)
-      .populate('savedClubs', 'name emoji category members')
-      .populate('joinedEvents', 'title date location clubId')
-      .populate('following', 'name email');
+      .select('-password')
+      .populate('savedClubs', 'name emoji image category members gradient')
+      .populate('joinedEvents', 'title date location clubId image emoji gradient category')
+      .populate('following', 'name emoji image gradient members');
     
     res.status(200).json({
       success: true,
@@ -230,7 +231,7 @@ export const saveClub = async (req, res, next) => {
     console.log('Saving club for user:', req.user.id);
     console.log('Club ID:', clubId);
 
-    const isSaved = user.savedClubs.includes(clubId);
+    const isSaved = user.savedClubs.some(id => id.toString() === clubId);
 
     if (isSaved) {
       user.savedClubs.pull(clubId);
@@ -266,23 +267,21 @@ export const joinEvent = async (req, res, next) => {
     console.log('Joining event for user:', req.user.id);
     console.log('Event ID:', eventId);
 
-    const isJoined = user.joinedEvents.includes(eventId);
+    const isJoined = user.joinedEvents.some(id => id.toString() === eventId);
 
     if (isJoined) {
-      user.joinedEvents.pull(eventId);
-      console.log('Removed event from joined');
-    } else {
-      user.joinedEvents.push(eventId);
-      console.log('Added event to joined');
+      return res.status(400).json({
+        success: false,
+        message: 'Already registered for this event'
+      });
     }
 
+    user.joinedEvents.push(eventId);
     await user.save();
-
-    console.log('Joined events after update:', user.joinedEvents);
 
     res.status(200).json({
       success: true,
-      joined: !isJoined,
+      joined: true,
       data: user.joinedEvents
     });
   } catch (error) {
@@ -302,19 +301,15 @@ export const followClub = async (req, res, next) => {
     console.log('Following club for user:', req.user.id);
     console.log('Club ID:', clubId);
 
-    const isFollowing = user.following.includes(clubId);
+    const isFollowing = user.following.some(id => id.toString() === clubId);
 
     if (isFollowing) {
       user.following.pull(clubId);
-      console.log('Removed club from following');
     } else {
       user.following.push(clubId);
-      console.log('Added club to following');
     }
 
     await user.save();
-
-    console.log('Following clubs after update:', user.following);
 
     res.status(200).json({
       success: true,

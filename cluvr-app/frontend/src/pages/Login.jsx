@@ -43,7 +43,6 @@ export default function Login() {
           <p className="text-muted text-sm">Sign in to continue to cluvr</p>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-6">
             {error}
@@ -101,7 +100,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Divider */}
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-border"></div>
           <span className="text-xs text-muted">or continue with</span>
@@ -119,7 +117,7 @@ export default function Login() {
           Google
         </button>
 
-        {/* Sign up link */}
+        {/* Sign up*/}
         <p className="text-center text-sm text-muted mt-6">
           Don't have an account?{' '}
           <Link to="/register" className="text-brand font-semibold hover:underline">

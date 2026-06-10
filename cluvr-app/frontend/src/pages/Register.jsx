@@ -103,14 +103,13 @@ export default function Register() {
           </p>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-6">
             {error}
           </div>
         )}
 
-        {/* Step 1: Basic Info */}
+        {/* Step 1*/}
         {step === 1 && (
           <form className="space-y-4">
             <div>
@@ -168,7 +167,7 @@ export default function Register() {
           </form>
         )}
 
-        {/* Step 2: University Info */}
+        {/* Step 2*/}
         {step === 2 && (
           <form className="space-y-4">
             <div>
@@ -220,7 +219,7 @@ export default function Register() {
           </form>
         )}
 
-        {/* Step 3: Interests */}
+        {/* Step 3*/}
         {step === 3 && (
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
@@ -264,7 +263,7 @@ export default function Register() {
           </form>
         )}
 
-        {/* Sign in link */}
+        {/* Sign in */}
         <p className="text-center text-sm text-muted mt-6">
           Already have an account?{' '}
           <Link to="/login" className="text-brand font-semibold hover:underline">

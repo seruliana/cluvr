@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import Club from '../model/club.js';
 import Event from '../model/event.js';
+import { keywordScoreClub, keywordSearchEvents } from '../utils/keywordSearch.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -68,6 +69,10 @@ Return your response as a JSON object with this exact structure:
 Only return the JSON, no other text.
 `;
 
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured');
+    }
+
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -96,27 +101,19 @@ Only return the JSON, no other text.
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', responseText);
       // Fallback to simple matching if AI fails
+      const tagQuery = userTags.join(' ');
       recommendations = {
-        clubs: clubs
-          .filter(club => 
-            userTags.some(tag => 
-              club.tags.some(clubTag => clubTag.toLowerCase().includes(tag.toLowerCase())) ||
-              club.category.toLowerCase().includes(tag.toLowerCase()) ||
-              club.name.toLowerCase().includes(tag.toLowerCase())
-            )
-          )
+        clubs: [...clubs]
+          .sort((a, b) => keywordScoreClub(b, tagQuery) - keywordScoreClub(a, tagQuery))
+          .filter(club => keywordScoreClub(club, tagQuery) > 0)
           .slice(0, 5)
           .map(club => club._id.toString()),
-        events: events
-          .filter(event =>
-            userTags.some(tag =>
-              event.category.toLowerCase().includes(tag.toLowerCase()) ||
-              event.title.toLowerCase().includes(tag.toLowerCase())
-            )
-          )
+        events: userTags
+          .flatMap(tag => keywordSearchEvents(events, tag))
+          .filter((event, idx, arr) => arr.findIndex(e => e._id.toString() === event._id.toString()) === idx)
           .slice(0, 5)
           .map(event => event._id.toString()),
-        explanation: "AI recommendation service unavailable, using keyword matching instead."
+        explanation: 'AI recommendation service unavailable, using keyword matching instead.',
       };
     }
 
@@ -140,23 +137,15 @@ Only return the JSON, no other text.
       const clubs = await Club.find();
       const events = await Event.find().populate('clubId');
 
-      const recommendedClubs = clubs
-        .filter(club => 
-          userTags.some(tag => 
-            club.tags.some(clubTag => clubTag.toLowerCase().includes(tag.toLowerCase())) ||
-            club.category.toLowerCase().includes(tag.toLowerCase()) ||
-            club.name.toLowerCase().includes(tag.toLowerCase())
-          )
-        )
+      const tagQuery = userTags.join(' ');
+      const recommendedClubs = [...clubs]
+        .sort((a, b) => keywordScoreClub(b, tagQuery) - keywordScoreClub(a, tagQuery))
+        .filter(club => keywordScoreClub(club, tagQuery) > 0)
         .slice(0, 5);
 
-      const recommendedEvents = events
-        .filter(event =>
-          userTags.some(tag =>
-            event.category.toLowerCase().includes(tag.toLowerCase()) ||
-            event.title.toLowerCase().includes(tag.toLowerCase())
-          )
-        )
+      const recommendedEvents = userTags
+        .flatMap(tag => keywordSearchEvents(events, tag))
+        .filter((event, idx, arr) => arr.findIndex(e => e._id.toString() === event._id.toString()) === idx)
         .slice(0, 5);
 
       res.json({

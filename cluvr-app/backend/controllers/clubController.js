@@ -1,5 +1,6 @@
 import Club from '../model/club.js';
 import OpenAI from 'openai';
+import { keywordSearchClubs } from '../utils/keywordSearch.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,33 +22,37 @@ export const getClubs = async (req, res, next) => {
     const clubs = await Club.find(query).sort({ createdAt: -1 });
 
     // If AI search is enabled, use semantic search
-    if (aiSearch && search) {
-      try {
-        const searchResults = await semanticSearch(clubs, search);
-        return res.status(200).json({
-          success: true,
-          count: searchResults.length,
-          data: searchResults,
-          aiSearch: true
-        });
-      } catch (aiError) {
-        console.error('AI search failed, falling back to regex search:', aiError);
-        // Fall back to regex search if AI fails
-      }
-    }
-
-    // Regular regex-based search
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
-      ];
-      const filteredClubs = await Club.find(query).sort({ createdAt: -1 });
+      const useAI = aiSearch === 'true' || aiSearch === true;
+      if (useAI) {
+        try {
+          let searchResults = await semanticSearch(clubs, search);
+          if (searchResults.length === 0) {
+            searchResults = keywordSearchClubs(clubs, search);
+          }
+          return res.status(200).json({
+            success: true,
+            count: searchResults.length,
+            data: searchResults,
+            aiSearch: true
+          });
+        } catch (aiError) {
+          console.error('AI search failed, falling back to keyword search:', aiError);
+          const fallback = keywordSearchClubs(clubs, search);
+          return res.status(200).json({
+            success: true,
+            count: fallback.length,
+            data: fallback,
+            aiSearch: 'keyword'
+          });
+        }
+      }
+
+      const keywordResults = keywordSearchClubs(clubs, search);
       return res.status(200).json({
         success: true,
-        count: filteredClubs.length,
-        data: filteredClubs,
+        count: keywordResults.length,
+        data: keywordResults,
         aiSearch: false
       });
     }

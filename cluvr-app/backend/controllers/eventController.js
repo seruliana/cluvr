@@ -1,5 +1,6 @@
 import Event from '../model/event.js';
 import OpenAI from 'openai';
+import { keywordSearchEvents } from '../utils/keywordSearch.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,36 +23,40 @@ export const getEvents = async (req, res, next) => {
       query.clubId = clubId;
     }
 
-    const events = await Event.find(query).populate('clubId', 'name emoji').sort({ date: 1 });
+    const events = await Event.find(query).populate('clubId', 'name emoji image').sort({ date: 1 });
 
     // If AI search is enabled, use semantic search
-    if (aiSearch && search) {
-      try {
-        const searchResults = await semanticEventSearch(events, search);
-        return res.status(200).json({
-          success: true,
-          count: searchResults.length,
-          data: searchResults,
-          aiSearch: true
-        });
-      } catch (aiError) {
-        console.error('AI search failed, falling back to regex search:', aiError);
-        // Fall back to regex search if AI fails
-      }
-    }
-
-    // Regular regex-based search
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
-      ];
-      const filteredEvents = await Event.find(query).populate('clubId', 'name emoji').sort({ date: 1 });
+      const useAI = aiSearch === 'true' || aiSearch === true;
+      if (useAI) {
+        try {
+          let searchResults = await semanticEventSearch(events, search);
+          if (searchResults.length === 0) {
+            searchResults = keywordSearchEvents(events, search);
+          }
+          return res.status(200).json({
+            success: true,
+            count: searchResults.length,
+            data: searchResults,
+            aiSearch: true
+          });
+        } catch (aiError) {
+          console.error('AI search failed, falling back to keyword search:', aiError);
+          const fallback = keywordSearchEvents(events, search);
+          return res.status(200).json({
+            success: true,
+            count: fallback.length,
+            data: fallback,
+            aiSearch: 'keyword'
+          });
+        }
+      }
+
+      const keywordResults = keywordSearchEvents(events, search);
       return res.status(200).json({
         success: true,
-        count: filteredEvents.length,
-        data: filteredEvents,
+        count: keywordResults.length,
+        data: keywordResults,
         aiSearch: false
       });
     }
@@ -154,7 +159,7 @@ Only return the JSON, no other text.
 // @access  Public
 export const getEventById = async (req, res, next) => {
   try {
-    const event = await Event.findById(req.params.id).populate('clubId', 'name emoji description location');
+    const event = await Event.findById(req.params.id).populate('clubId', 'name emoji image description location');
     
     if (!event) {
       return res.status(404).json({

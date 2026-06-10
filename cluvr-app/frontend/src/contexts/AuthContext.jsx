@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI, removeToken, getToken, isAuthenticated as checkAuth } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -7,36 +7,44 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user is authenticated on mount
-    if (checkAuth()) {
-      loadUserProfile();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const loadUserProfile = async () => {
+  const loadUserProfile = useCallback(async () => {
     try {
       const data = await authAPI.getProfile();
       setUser(data.data);
     } catch (error) {
       console.error('Failed to load profile:', error);
-      removeToken();
+      if (error.status === 401) {
+        removeToken();
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const data = await authAPI.getProfile();
+    setUser(data.data);
+    return data.data;
+  }, []);
+
+  useEffect(() => {
+    if (checkAuth()) {
+      loadUserProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [loadUserProfile]);
 
   const login = async (credentials) => {
     const data = await authAPI.login(credentials);
-    setUser(data.data);
+    await loadUserProfile();
     return data;
   };
 
   const register = async (userData) => {
     const data = await authAPI.register(userData);
-    setUser(data.data);
+    await loadUserProfile();
     return data;
   };
 
@@ -60,7 +68,8 @@ export function AuthProvider({ children }) {
         register,
         logout,
         updateProfile,
-        isAuthenticated: !!user,
+        refreshUser,
+        isAuthenticated: !!user || (!!getToken() && loading),
       }}
     >
       {children}

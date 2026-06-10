@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
@@ -12,6 +13,17 @@ export default {
         muted:      '#6b6880',
         border:     '#e4e1f5',
         ink:        '#0f0d1a',
+      },
+      backgroundColor: {
+        page: 'var(--page-bg)',
+        card: 'var(--card-bg)',
+      },
+      textColor: {
+        ink: 'var(--text-ink)',
+        muted: 'var(--text-muted)',
+      },
+      borderColor: {
+        border: 'var(--border-color)',
       },
       boxShadow: {
         brand:       '0 4px 24px rgba(91,63,248,0.10)',

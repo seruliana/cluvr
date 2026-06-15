@@ -23,6 +23,11 @@ const clubSchema = new Schema({
     default: "",
   },
 
+  gallery: {
+    type: [String],
+    default: [],
+  },
+
   emoji: {
     type: String,
     default: "🎓",

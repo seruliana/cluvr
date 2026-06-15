@@ -1,11 +1,13 @@
 import { getClubActivityStatus, getEventCardBadge, formatEventMonthYear } from './helpers'
 
 export function mapClubToCard(club, allEvents = []) {
-  const activity = getClubActivityStatus(club._id, allEvents)
+  const events = Array.isArray(allEvents) ? allEvents : []
+  const activity = getClubActivityStatus(club._id, events)
   return {
     id: club._id,
     type: 'club',
-    image: club.image,
+    name: club.name,
+    image: club.image || '',
     gradient: club.gradient || 'from-brand-lt to-violet-200',
     emoji: club.emoji || '🎓',
     badge: activity.label,
@@ -51,8 +53,10 @@ export function mapEventToCard(event) {
 }
 
 export function combineClubEventCards(clubs, events) {
-  const clubCards = clubs.map((club) => mapClubToCard(club, events))
-  const eventCards = events.map(mapEventToCard)
+  const clubList = Array.isArray(clubs) ? clubs : []
+  const eventList = Array.isArray(events) ? events : []
+  const clubCards = clubList.map((club) => mapClubToCard(club, eventList))
+  const eventCards = eventList.map(mapEventToCard)
   const combined = []
   const maxLength = Math.max(clubCards.length, eventCards.length)
   for (let i = 0; i < maxLength; i++) {

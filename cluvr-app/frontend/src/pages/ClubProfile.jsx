@@ -4,7 +4,7 @@ import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import { useAuth } from '../contexts/AuthContext'
 import { authAPI, clubsAPI, eventsAPI, favoritesAPI, userActionsAPI } from '../services/api'
-import { toId, splitEventsByDate, getEventCardBadge, getClubGalleryImages, getClubActivityStatus } from '../utils/helpers'
+import { toId, splitEventsByDate, getEventCardBadge, getClubActivityStatus } from '../utils/helpers'
 import ItemImage from '../components/ui/ItemImage'
 import SaveButton from '../components/ui/SaveButton'
 
@@ -203,7 +203,7 @@ export default function ClubProfile() {
 
   const { upcoming, past } = splitEventsByDate(clubEvents)
   const activity = getClubActivityStatus(id, clubEvents)
-  const galleryImages = getClubGalleryImages(club)
+  const galleryImages = club.gallery || []
 
   return (
     <div className="min-h-screen text-ink bg-page">

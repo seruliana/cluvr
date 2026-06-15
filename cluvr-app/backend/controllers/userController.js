@@ -109,7 +109,11 @@ export const getProfile = async (req, res, next) => {
     const user = await User.findById(req.user.id)
       .select('-password')
       .populate('savedClubs', 'name emoji image category members gradient')
-      .populate('joinedEvents', 'title date location clubId image emoji gradient category')
+      .populate({
+        path: 'joinedEvents',
+        select: 'title date location clubId image emoji gradient category',
+        populate: { path: 'clubId', select: 'name emoji image' },
+      })
       .populate('following', 'name emoji image gradient members');
     
     res.status(200).json({

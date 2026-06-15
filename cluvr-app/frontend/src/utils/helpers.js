@@ -28,8 +28,14 @@ export function splitEventsByDate(events = []) {
 
 export function getItemImage(item) {
   if (item?.image) return item.image
-  const seed = encodeURIComponent(item?.name || item?.title || 'cluvr')
+  const seed = encodeURIComponent(item?.name || item?.title || item?.id || 'cluvr')
   return `https://picsum.photos/seed/${seed}/640/480`
+}
+
+export function getClubName(event) {
+  if (typeof event?.clubId === 'object' && event.clubId?.name) return event.clubId.name
+  if (typeof event?.club === 'string' && event.club !== 'Unknown') return event.club
+  return 'Campus Event'
 }
 
 export function formatEventMonthYear(dateStr) {
@@ -48,8 +54,9 @@ export function getEventCardBadge(event) {
 }
 
 export function getClubActivityStatus(clubId, allEvents = []) {
+  const events = Array.isArray(allEvents) ? allEvents : []
   const id = toId(clubId)
-  const clubEvents = allEvents.filter((e) => toId(e.clubId) === id)
+  const clubEvents = events.filter((e) => toId(e?.clubId) === id)
   if (clubEvents.length === 0) {
     return { label: 'Inactive', badgeColor: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200' }
   }

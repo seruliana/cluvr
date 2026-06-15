@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
 import { useAuth } from '../contexts/AuthContext'
-import { toId, splitEventsByDate } from '../utils/helpers'
+import { toId, splitEventsByDate, getClubName } from '../utils/helpers'
 import ItemImage from '../components/ui/ItemImage'
 
 function EventGrid({ events, emptyLabel, onSelect }) {
@@ -26,7 +26,7 @@ function EventGrid({ events, emptyLabel, onSelect }) {
           </div>
           <div className="p-3.5">
             <h4 className="font-semibold text-sm text-ink mb-0.5">{event.title}</h4>
-            <p className="text-xs text-brand font-medium mb-2">{event.clubId?.name || 'Unknown Club'}</p>
+            <p className="text-xs text-brand font-medium mb-2">{getClubName(event)}</p>
             <div className="text-xs text-muted mb-0.5 flex items-center gap-1">📅 {event.date || 'TBD'}</div>
             <div className="text-xs text-muted flex items-center gap-1">📍 {event.location || 'TBD'}</div>
           </div>

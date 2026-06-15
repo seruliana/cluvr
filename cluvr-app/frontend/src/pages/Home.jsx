@@ -4,7 +4,7 @@ import Footer from '../components/layout/Footer'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authAPI, clubsAPI, eventsAPI, favoritesAPI, userActionsAPI } from '../services/api'
-import { combineClubEventCards, mapClubToCard } from '../utils/cardMappers'
+import { combineClubEventCards } from '../utils/cardMappers'
 import DiscoverCard from '../components/ui/DiscoverCard'
 import ItemImage from '../components/ui/ItemImage'
 
@@ -27,7 +27,6 @@ export default function Home() {
   const navigate = useNavigate()
   const { isAuthenticated, user, refreshUser } = useAuth()
   const [cards, setCards] = useState([])
-  const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [filterType, setFilterType] = useState('all')
   const [registered, setRegistered] = useState({})
@@ -45,8 +44,7 @@ export default function Home() {
         clubsAPI.getAll(),
         eventsAPI.getAll(),
       ])
-      setEvents(eventsRes.data || [])
-      setCards(combineClubEventCards(clubsRes.data || [], eventsRes.data || []))
+      setCards(combineClubEventCards(clubsRes.data, eventsRes.data))
       setRecommendations(readRecommendations())
     } catch (error) {
       console.error('Failed to load data:', error)
@@ -85,11 +83,14 @@ export default function Home() {
 
   const heroClubs = useMemo(() => {
     if (recommendations?.clubs?.length) {
-      const recCards = recommendations.clubs.map(club => mapClubToCard(club, events))
-      return recCards.length ? recCards : allClubCards
+      const recIds = recommendations.clubs.map(c => toId(c))
+      const matched = recIds
+        .map(id => allClubCards.find(c => toId(c.id) === id))
+        .filter(Boolean)
+      if (matched.length) return matched
     }
     return allClubCards
-  }, [recommendations, allClubCards, events])
+  }, [recommendations, allClubCards])
 
   const stripClubs = heroClubs.slice(0, 8)
   const tagClubs = allClubCards

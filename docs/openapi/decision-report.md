@@ -2,13 +2,16 @@
 
 **Author:** Ts. Saruulchimeg (23B1NUM1396)  
 **Course:** Software Project Documentation (Sprint 05)  
+**Guiding Project:** Cluvr (https://github.com/seruliana/cluvr)  
 **Topic:** Dual Renderer Trade-Off Analysis (Chinchilla Ch. 4 & 6 / Bhatti Ch. 7)
 
 ---
 
 ### 100-Word Decision Report (Official English Text)
 
-Our comparative evaluation demonstrates distinct operational trade-offs between Swagger UI and Redoc for API documentation. Redoc provides superior layout readability through its responsive three-panel architecture, cleanly separating navigation hierarchy, explanatory prose, and synchronized request-response schemas. Furthermore, its instantaneous client-side full-text search across all parameters and models drastically minimizes cognitive overhead during reading workflows. Conversely, Swagger UI excels in sandbox utility through its interactive Try-It-Out console, enabling real-time JWT authentication, live multipart file execution, and direct HTTP inspection. Therefore, our team adopts Redoc for public reference documentation while maintaining Swagger UI internally within staging environments for rapid integration testing and debugging. (100 words)
+Our comparative evaluation demonstrates distinct operational trade-offs between Swagger UI and Redoc for API documentation. Redoc provides superior layout readability through its responsive three-panel architecture, cleanly separating navigation hierarchy, explanatory prose, and synchronized request-response schemas. Furthermore, its instantaneous client-side full-text search across all parameters and models drastically minimizes cognitive overhead during reading workflows. Conversely, Swagger UI excels in sandbox utility through its interactive Try-It-Out console, enabling real-time JWT authentication, live multipart file execution, and direct HTTP inspection. Therefore, our team adopts Redoc for public reference documentation while maintaining Swagger UI internally within staging environments for rapid integration testing and debugging.
+
+[Verified Word Count: Exactly 100 words | Баталгаажуулсан үгийн тоо: Яг 100 үг]
 
 ---
 
@@ -27,4 +30,4 @@ Our comparative evaluation demonstrates distinct operational trade-offs between 
 | **"Try-It-Out" Sandbox Testing** | Native interactive execution engine; supports Bearer JWT modals, file uploads, parameter forms, and cURL generation. | Static reference only; no built-in HTTP execution engine without third-party plugins. | **Swagger UI**: Indispensable for manual QA, staging smoke tests, and developer sandbox trials. |
 | **Code Sample Presentation** | Embedded inside request body tabs; limited language tabs out-of-the-box. | Persistent right-hand dark panel showing synchronized request/response samples in multiple languages. | **Redoc**: Developer ergonomics match modern developer portal expectations. |
 | **Deployment & Footprint** | Dynamic JavaScript bundle requiring client-side DOM rendering and spec fetching. | Generates zero-dependency standalone single-file HTML via `@redocly/cli build-docs` (150 KiB). | **Redoc**: Extremely lightweight, CDN-cacheable, perfect for static CI/CD pipelines. |
-| **Public Deployment URLs** | `https://saruul3339.github.io/ICSI438-pd/swagger.html` | `https://saruul3339.github.io/ICSI438-pd/` | Dual hosting deployed via GitHub Actions Pages. |
+| **Public Deployment URLs** | `https://seruliana.github.io/cluvr/swagger.html` | `https://seruliana.github.io/cluvr/` | Dual hosting deployed via GitHub Actions Pages. |

@@ -83,11 +83,11 @@ def generate_report():
     add_callout_box(
         doc,
         "Төслийн хүрээ: Corg.ly Pet Onboarding API (UE-5 Лабораторийн жишиг) & Cluvr платформ (Хөтөч төсөл)\n"
-        "Хувилбар: v1.0 (Sprint 05) | Огноо: 2026-10-05 | GitHub: https://github.com/saruul3339/ICSI438-pd\n"
+        "Хувилбар: v1.0 (Sprint 05) | Огноо: 2026-10-05 | GitHub: https://github.com/seruliana/cluvr\n"
         "Нээлттэй Public URL-ууд (GitHub Pages):\n"
-        "  • Redoc Reader View: https://saruul3339.github.io/ICSI438-pd/\n"
-        "  • Swagger UI Sandbox: https://saruul3339.github.io/ICSI438-pd/swagger.html\n"
-        "  • OpenAPI 3.0 YAML: https://saruul3339.github.io/ICSI438-pd/openapi.yaml\n"
+        "  • Redoc Reader View: https://seruliana.github.io/cluvr/\n"
+        "  • Swagger UI Sandbox: https://seruliana.github.io/cluvr/swagger.html\n"
+        "  • OpenAPI 3.0 YAML: https://seruliana.github.io/cluvr/openapi.yaml\n"
         "Definition of Done: OpenAPI 3.0.3 Validated (0 errors) ✔ | 6 Endpoints Defined ✔ | Bhatti 5 Principles Scorecard (4.80/5.00 = 96%) ✔ | Prism Mock Tested ✔ | GitHub Pages Live ✔ | CI Pipeline (Bonus +10%) ✔ | 100-Word Decision Report ✔",
         title="Sprint 05 Гүйцэтгэлийн Паспорт & Мэдээлэл"
     )
@@ -121,7 +121,7 @@ def generate_report():
         [
             "Хос Рендерер (Swagger UI ба Redoc) зэрэг ажиллах Public URL",
             "ХАНГАСАН ✔",
-            "GitHub Pages дээр бүрэн deploy хийгдсэн:\n• Redoc: https://saruul3339.github.io/ICSI438-pd/\n• Swagger UI: https://saruul3339.github.io/ICSI438-pd/swagger.html"
+            "GitHub Pages дээр бүрэн deploy хийгдсэн:\n• Redoc: https://seruliana.github.io/cluvr/\n• Swagger UI: https://seruliana.github.io/cluvr/swagger.html"
         ],
         [
             "Яг 100 үгийн харьцуулсан шийдвэрийн тайлан (Decision Report)",
@@ -623,8 +623,8 @@ OK""")
         ],
         [
             "Нээлттэй Public URL (GitHub Pages)",
-            "https://saruul3339.github.io/ICSI438-pd/swagger.html",
-            "https://saruul3339.github.io/ICSI438-pd/",
+            "https://seruliana.github.io/cluvr/swagger.html",
+            "https://seruliana.github.io/cluvr/",
             "Хос байршуулалт GitHub Actions хоолойгоор автоматаар шинэчлэгдэнэ."
         ]
     ]
@@ -688,7 +688,7 @@ OK""")
     add_heading_2(doc, "Хавсралт: Төслийн Бүтэц ба Үүсгэсэн Файлуудын Лавлах")
     add_body_p(
         doc,
-        "Sprint 05-ийн хүрээнд хийгдсэн бүх код, спецификаци, баримтууд төслийн дараах бүтцэд хадгалагдсан бөгөөд GitHub репозиторт (https://github.com/saruul3339/ICSI438-pd) байршиж байна:"
+        "Sprint 05-ийн хүрээнд хийгдсэн бүх код, спецификаци, баримтууд төслийн дараах бүтцэд хадгалагдсан бөгөөд GitHub репозиторт (https://github.com/seruliana/cluvr) байршиж байна:"
     )
     add_code_block(doc, """ICSI438:pd/
 ├── docs/

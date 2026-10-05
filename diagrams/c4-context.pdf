@@ -1,0 +1,338 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 1000 650] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 4779 >>
+stream
+0.970 0.980 0.990 rg
+0 0 1000 650 re f
+0.100 0.150 0.300 rg
+BT
+/F2 16 Tf
+321.12 615.00 Td
+(Cluvr - System Context Diagram \(C4 Level 1\)) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 9 Tf
+347.90 598.00 Td
+(arc42 Section 3: Context & Scope | US-4.1 Acceptance Criteria Met) Tj
+ET
+0.860 0.880 0.910 rg
+63 417 210 95 re f
+0.050 0.350 0.650 rg
+60 420 210 95 re f
+0.020 0.200 0.450 RG
+1.5 w
+60 420 210 95 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+113.13 495.00 Td
+(Student \(Bold / P1\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+127.56 482.00 Td
+([Person: End-User]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+100.65 468.00 Td
+(Discovers clubs, views schedules,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+102.60 458.00 Td
+(joins clubs, and RSVPs to events) Tj
+ET
+0.860 0.880 0.910 rg
+63 272 210 95 re f
+0.050 0.350 0.650 rg
+60 275 210 95 re f
+0.020 0.200 0.450 RG
+1.5 w
+60 275 210 95 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+124.05 350.00 Td
+(Club Admin \(P2\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+125.48 337.00 Td
+([Person: Organizer]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+94.80 323.00 Td
+(Publishes club info, creates events,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+98.70 313.00 Td
+(manages attendees and applications) Tj
+ET
+0.860 0.880 0.910 rg
+63 127 210 95 re f
+0.050 0.350 0.650 rg
+60 130 210 95 re f
+0.020 0.200 0.450 RG
+1.5 w
+60 130 210 95 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+107.67 205.00 Td
+(University Admin \(P3\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+125.48 192.00 Td
+([Person: Moderator]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+108.45 178.00 Td
+(Reviews new club submissions,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+90.90 168.00 Td
+(manages categories and campus policies) Tj
+ET
+0.860 0.880 0.910 rg
+373 237 270 170 re f
+0.120 0.480 0.850 rg
+370 240 270 170 re f
+0.060 0.300 0.600 RG
+1.5 w
+370 240 270 170 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+455.86 390.00 Td
+(Cluvr Web Platform) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+469.64 377.00 Td
+([Software System]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+417.25 363.00 Td
+(Central campus web platform allowing students) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+415.30 353.00 Td
+(to discover university clubs, join activities,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+444.55 343.00 Td
+(and register for campus events.) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+505.00 333.00 Td
+() Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+425.05 323.00 Td
+(Node.js + Express, PostgreSQL 16, HTML/JS) Tj
+ET
+0.860 0.880 0.910 rg
+733 357 210 105 re f
+0.420 0.450 0.480 rg
+730 360 210 105 re f
+0.280 0.300 0.320 RG
+1.5 w
+730 360 210 105 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+785.86 445.00 Td
+(SMTP Email Service) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+778.84 432.00 Td
+([External System: SMTP/TLS]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+760.90 418.00 Td
+(Third-party transactional mail service) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+764.80 408.00 Td
+(used for sending verification emails) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+778.45 398.00 Td
+(and automated event reminders) Tj
+ET
+0.860 0.880 0.910 rg
+733 177 210 105 re f
+0.420 0.450 0.480 rg
+730 180 210 105 re f
+0.280 0.300 0.320 RG
+1.5 w
+730 180 210 105 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+794.05 265.00 Td
+(Google Calendar) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+780.92 252.00 Td
+([External System: Web API]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+768.70 238.00 Td
+(External consumer calendar service) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+774.55 228.00 Td
+(allowing students to sync event) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+764.80 218.00 Td
+(dates via URL parameters \(deep link\)) Tj
+ET
+0.200 0.300 0.400 RG
+1.5 w
+[] 0 d
+270.0 465.0 m 370.0 360.0 l S
+370.0 360.0 m 366.3 369.3 l 360.9 364.2 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+282.56 417.50 Td
+(Search, Join, RSVP) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+289.06 405.50 Td
+([HTTPS / Browser]) Tj
+ET
+270.0 325.0 m 370.0 325.0 l S
+370.0 325.0 m 360.7 328.7 l 360.7 321.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+274.24 330.00 Td
+(Create & Manage Events) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+289.06 318.00 Td
+([HTTPS / Browser]) Tj
+ET
+270.0 180.0 m 370.0 280.0 l S
+370.0 280.0 m 360.8 276.1 l 366.1 270.8 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+282.56 235.00 Td
+(Approve & Moderate) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+289.06 223.00 Td
+([HTTPS / Browser]) Tj
+ET
+640.0 350.0 m 730.0 410.0 l S
+730.0 410.0 m 720.2 407.9 l 724.3 401.8 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+647.56 385.00 Td
+(Send Notifications) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+663.16 373.00 Td
+([SMTP / TLS]) Tj
+ET
+640.0 290.0 m 730.0 235.0 l S
+730.0 235.0 m 724.0 243.0 l 720.1 236.7 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+645.48 267.50 Td
+(Sync Event Schedule) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+654.06 255.50 Td
+([HTTPS Deep Link]) Tj
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000252 00000 n 
+0000000322 00000 n 
+0000000397 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+5228
+%%EOF

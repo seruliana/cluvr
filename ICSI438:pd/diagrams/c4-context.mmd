@@ -1,0 +1,18 @@
+C4Context
+  title Cluvr — System Context Diagram (Level 1)
+
+  Person(student, "Оюутан (Болд / P1)", "Клуб хайх, арга хэмжээ үзэх, бүртгүүлэх (RSVP)")
+  Person(organizer, "Клубын админ (P2)", "Клуб, арга хэмжээ нийтлэх, гишүүд харах")
+  Person(admin, "Их сургуулийн админ (P3)", "Клубын бүртгэлийг баталж хянах")
+
+  System(cluvr, "Cluvr Систем", "Их сургуулийн клуб, арга хэмжээ олж харах нэгдсэн веб платформ")
+
+  System_Ext(smtp, "SMTP Үйлчилгээ", "Бүртгэл, сануулгын и-мэйл илгээх гадаад үйлчилгээ")
+  System_Ext(gcal, "Google Calendar", "Арга хэмжээг хувийн хуанлид нэмэх гадаад үйлчилгээ")
+
+  Rel(student, cluvr, "Клуб хайх, нэгдэх, RSVP хийх", "HTTPS")
+  Rel(organizer, cluvr, "Клуб/арга хэмжээ үүсгэх, удирдах", "HTTPS")
+  Rel(admin, cluvr, "Клуб батлах, модерац хийх", "HTTPS")
+
+  Rel(cluvr, smtp, "Мэдэгдэл ба сануулга илгээх", "SMTP / TLS")
+  Rel(cluvr, gcal, "Арга хэмжээний өгөгдөл дамжуулах", "HTTPS Deep Link")

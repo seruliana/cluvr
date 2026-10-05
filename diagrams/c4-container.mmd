@@ -1,0 +1,23 @@
+C4Container
+  title Cluvr — Container Diagram (Level 2)
+  Person(student, "Оюутан (Болд / P1)", "Клуб хайх, арга хэмжээнд RSVP хийх")
+  Person(organizer, "Клубын админ (P2)", "Клуб, арга хэмжээ нийтэлж удирдах")
+  Person(admin, "Их сургуулийн админ (P3)", "Клубын бүртгэлийг баталж хянах")
+  System_Boundary(cluvr_bnd, "Cluvr Систем") {
+    Container(web, "Web App (Frontend)", "HTML5, Tailwind CSS, Vanilla JS", "11 хуудас UI, API client, form validation")
+    Container(api, "REST API (Backend)", "Node.js 20, Express", "Auth, Клуб, Арга хэмжээ, Модерацийн логик; OpenAPI 3.0")
+    ContainerDb(db, "Database", "PostgreSQL 16", "Хэрэглэгч, клуб, арга хэмжээ, RSVP өгөгдөл, UNIQUE constraints")
+    Container(files, "File Storage", "S3-compatible Object Storage", "Клубын лого, постер зураг")
+    Container(worker, "Notification Worker", "Node.js, node-cron", "Хуваарийн дагуу сануулга (FR-14) имэйл илгээнэ")
+  }
+  System_Ext(smtp, "SMTP Үйлчилгээ", "И-мэйл илгээх гадаад үйлчилгээ")
+  System_Ext(gcal, "Google Calendar", "Хувийн хуанлид арга хэмжээ нэмэх")
+  Rel(student, web, "Ашиглана", "HTTPS")
+  Rel(organizer, web, "Ашиглана", "HTTPS")
+  Rel(admin, web, "Ашиглана", "HTTPS")
+  Rel(web, api, "API дуудна", "JSON / HTTPS")
+  Rel(api, db, "Унших, бичих", "SQL / TCP")
+  Rel(api, files, "Зураг хадгалах", "HTTPS")
+  Rel(worker, db, "Илгээх өгөгдөл унших", "SQL / TCP")
+  Rel(worker, smtp, "И-мэйл илгээх", "SMTP / TLS")
+  Rel(web, gcal, "Календарьт нэмэх холбоос", "HTTPS Deep Link")

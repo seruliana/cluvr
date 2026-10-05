@@ -1,0 +1,84 @@
+name: OpenAPI Specification & Code Samples CI/CD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  validate-and-build:
+    name: Validate OpenAPI Spec & Build Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli
+
+      - name: Run Redocly Linter on Corg.ly Spec (US-5.1)
+        run: redocly lint docs/openapi/openapi.yaml
+
+      - name: Run Redocly Linter on Cluvr Spec
+        run: redocly lint docs/openapi/cluvr-openapi.yaml
+
+      - name: Build Standalone Redoc HTML (US-5.3)
+        run: redocly build-docs docs/openapi/openapi.yaml -o public/index.html
+
+      - name: Copy Specifications to Public Distribution
+        run: |
+          cp docs/openapi/openapi.yaml public/openapi.yaml
+          cp docs/openapi/cluvr-openapi.yaml public/cluvr-openapi.yaml 2>/dev/null || true
+
+      - name: Upload GitHub Pages Artifact (US-5.3 & US-5.4)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  test-code-samples:
+    name: Bhatti Executable Code Samples CI Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: pip install requests
+
+      - name: Run Automated Code Sample Test Suite (Bhatti p. 96)
+        run: python -m unittest discover tests
+
+  deploy-pages:
+    name: Deploy Dual Renderers to GitHub Pages
+    needs: [validate-and-build, test-code-samples]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

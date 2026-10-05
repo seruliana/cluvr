@@ -1,0 +1,713 @@
+openapi: 3.0.3
+info:
+  title: Corg.ly Pet Onboarding & Translation API
+  version: 1.0.0
+  description: >-
+    Official API documentation for pet registration, biometric bark voice translation,
+    and webhook event streaming. Designed in accordance with OpenAPI 3.0 standards
+    and Bhatti's 5 Principles for Technical Documentation.
+  termsOfService: https://corg.ly/terms
+  contact:
+    name: Corg.ly Developer Support
+    email: api-support@corg.ly
+    url: https://corg.ly/support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.corg.ly/v1
+    description: Production Server
+  - url: http://127.0.0.1:4010
+    description: Local Prism Mock Server (Sandbox & Testing)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /pets:
+    post:
+      summary: Register and onboard a new pet profile
+      description: >-
+        Creates a new pet profile in the Corg.ly registry. Generates a unique pet identifier
+        and initializes baseline health and vocal metrics for translation models.
+      operationId: createPetProfile
+      tags:
+        - Pets
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Pet profile creation payload containing identity and demographic details.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetCreateRequest'
+            example:
+              pet_name: "Einstein"
+              breed: "Pembroke Welsh Corgi"
+              age_months: 28
+              owner_email: "saruulchimeg.ts@num.edu.mn"
+      responses:
+        '201':
+          description: Pet profile successfully registered and initialized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetProfile'
+              example:
+                pet_id: "corgi_98231"
+                pet_name: "Einstein"
+                breed: "Pembroke Welsh Corgi"
+                age_months: 28
+                owner_email: "saruulchimeg.ts@num.edu.mn"
+                photo_url: "https://media.corg.ly/photos/corgi_98231_default.png"
+                status: "active"
+                created_at: "2026-10-05T08:15:30Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /pets/{pet_id}:
+    get:
+      summary: Retrieve an existing pet profile
+      description: Fetches full biographical and system status records for a registered pet using its unique identifier.
+      operationId: getPetProfile
+      tags:
+        - Pets
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: pet_id
+          in: path
+          required: true
+          description: Unique string identifier for the pet (e.g., corgi_98231).
+          schema:
+            type: string
+            pattern: '^[a-z]+_[0-9]{5}$'
+            example: "corgi_98231"
+      responses:
+        '200':
+          description: Pet profile record successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetProfile'
+              example:
+                pet_id: "corgi_98231"
+                pet_name: "Einstein"
+                breed: "Pembroke Welsh Corgi"
+                age_months: 28
+                owner_email: "saruulchimeg.ts@num.edu.mn"
+                photo_url: "https://media.corg.ly/photos/einstein_avatar.jpg"
+                status: "active"
+                created_at: "2026-10-05T08:15:30Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /pets/upload-photo:
+    post:
+      summary: Upload pet profile picture (Multipart Form Data)
+      description: >-
+        Accepts binary image upload (JPEG/PNG) associated with a pet ID. Validates file resolution,
+        strips EXIF metadata, stores image in secure cloud CDN, and binds URL to the pet record.
+      operationId: uploadPetPhoto
+      tags:
+        - Pets
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Multipart binary form data with pet ID and photo file.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - pet_id
+                - photo_file
+              properties:
+                pet_id:
+                  type: string
+                  description: Unique ID of the pet receiving the new photo.
+                  example: "corgi_98231"
+                photo_file:
+                  type: string
+                  format: binary
+                  description: Binary photo file (JPEG or PNG, max 10MB).
+      responses:
+        '200':
+          description: Photo uploaded, resized, and bound to pet profile successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetPhotoUploadResponse'
+              example:
+                photo_url: "https://media.corg.ly/photos/corgi_98231_20261005.jpg"
+                pet_id: "corgi_98231"
+                file_size_bytes: 1482910
+                mime_type: "image/jpeg"
+                uploaded_at: "2026-10-05T08:20:45Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '413':
+          description: Payload too large (file exceeds 10MB limit).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: "FILE_TOO_LARGE"
+                message: "Uploaded image file exceeds the 10 megabyte ceiling."
+                timestamp: "2026-10-05T08:20:46Z"
+                request_id: "req_ph_err_91823"
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audio/translate-bark:
+    post:
+      summary: Translate canine vocalization audio to natural human language
+      description: >-
+        Analyzes audio acoustic frequencies, pitch modulation, and duration using Corg.ly's deep
+        learning bark recognition neural network. Returns translated human intent, emotional state,
+        and confidence score.
+      operationId: translateBarkAudio
+      tags:
+        - Translation
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Audio payload with base64 encoded audio bytes and acoustic metadata.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AudioTranslateRequest'
+            example:
+              pet_id: "corgi_98231"
+              audio_format: "wav"
+              sample_rate_hz: 44100
+              audio_base64: "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
+      responses:
+        '200':
+          description: Acoustic bark translation processed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioTranslateResponse'
+              example:
+                translation_id: "tx_bark_88412"
+                pet_id: "corgi_98231"
+                emotion: "Hungry / Demanding Attention"
+                english_translation: "I demand dinner immediately! Where is the kibble?"
+                confidence_score: 0.942
+                frequency_hz: 852.4
+                translated_at: "2026-10-05T08:25:12Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /webhooks/subscribe:
+    post:
+      summary: Register a webhook listener endpoint for real-time pet activity events
+      description: >-
+        Subscribes an external HTTPS endpoint to receive asynchronous webhook event notifications
+        such as bark translations, feeding alerts, or health warnings.
+      operationId: subscribeWebhook
+      tags:
+        - Webhooks
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Webhook subscription registration payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookSubscriptionRequest'
+            example:
+              callback_url: "https://smartfeeder.iot.example.com/api/v1/corgly-events"
+              event_types:
+                - "bark.translated"
+                - "pet.activity_alert"
+              secret_token: "sec_wh_corgi_prod_7781a9f02b"
+              description: "IoT Automated Feeder & Activity Monitor Webhook"
+      responses:
+        '201':
+          description: Webhook subscription successfully registered and verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResponse'
+              example:
+                subscription_id: "wh_sub_55109"
+                callback_url: "https://smartfeeder.iot.example.com/api/v1/corgly-events"
+                event_types:
+                  - "bark.translated"
+                  - "pet.activity_alert"
+                status: "active"
+                secret_preview: "sec_wh_corgi...9f02b"
+                created_at: "2026-10-05T08:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /audio/translations/{pet_id}:
+    get:
+      summary: Retrieve bark translation historical audit log
+      description: Returns a paginated chronologically ordered log of acoustic bark translations for a given pet ID.
+      operationId: getTranslationHistory
+      tags:
+        - Translation
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: pet_id
+          in: path
+          required: true
+          description: Pet identifier to query history for.
+          schema:
+            type: string
+            example: "corgi_98231"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of records to return.
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+            example: 10
+      responses:
+        '200':
+          description: Paginated translation history successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - pet_id
+                  - total_count
+                  - records
+                properties:
+                  pet_id:
+                    type: string
+                    example: "corgi_98231"
+                  total_count:
+                    type: integer
+                    example: 1
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AudioTranslateResponse'
+              example:
+                pet_id: "corgi_98231"
+                total_count: 1
+                records:
+                  - translation_id: "tx_bark_88412"
+                    pet_id: "corgi_98231"
+                    emotion: "Hungry / Demanding Attention"
+                    english_translation: "I demand dinner immediately! Where is the kibble?"
+                    confidence_score: 0.942
+                    frequency_hz: 852.4
+                    translated_at: "2026-10-05T08:25:12Z"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Standard RFC 7519 JSON Web Token (JWT) provided in Authorization header as Bearer token.
+
+  schemas:
+    PetProfile:
+      type: object
+      required:
+        - pet_id
+        - pet_name
+        - breed
+        - age_months
+        - owner_email
+        - photo_url
+        - status
+        - created_at
+      properties:
+        pet_id:
+          type: string
+          description: System-assigned unique alphanumeric identifier for the pet.
+          example: "corgi_98231"
+        pet_name:
+          type: string
+          description: Given name of the registered pet.
+          example: "Einstein"
+        breed:
+          type: string
+          description: Officially registered canine breed.
+          example: "Pembroke Welsh Corgi"
+        age_months:
+          type: integer
+          description: Age calculated in months.
+          example: 28
+        owner_email:
+          type: string
+          format: email
+          description: Contact email of the human owner.
+          example: "saruulchimeg.ts@num.edu.mn"
+        photo_url:
+          type: string
+          format: uri
+          description: Cloud storage URL pointing to high-resolution pet profile image.
+          example: "https://media.corg.ly/photos/einstein_avatar.jpg"
+        status:
+          type: string
+          enum: [active, pending_verification, archived]
+          description: Onboarding status in the platform registry.
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp of initial registration.
+          example: "2026-10-05T08:15:30Z"
+
+    PetCreateRequest:
+      type: object
+      required:
+        - pet_name
+        - breed
+        - age_months
+        - owner_email
+      properties:
+        pet_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Given name of the pet.
+          example: "Einstein"
+        breed:
+          type: string
+          description: Breed of the dog.
+          example: "Pembroke Welsh Corgi"
+        age_months:
+          type: integer
+          minimum: 1
+          maximum: 300
+          description: Pet age in months.
+          example: 28
+        owner_email:
+          type: string
+          format: email
+          description: Email address of the owner.
+          example: "saruulchimeg.ts@num.edu.mn"
+
+    PetPhotoUploadResponse:
+      type: object
+      required:
+        - photo_url
+        - pet_id
+        - file_size_bytes
+        - mime_type
+        - uploaded_at
+      properties:
+        photo_url:
+          type: string
+          format: uri
+          description: Hosted CDN URL of the newly uploaded pet photo.
+          example: "https://media.corg.ly/photos/corgi_98231_20261005.jpg"
+        pet_id:
+          type: string
+          description: Associated pet ID.
+          example: "corgi_98231"
+        file_size_bytes:
+          type: integer
+          description: Exact size of the processed file in bytes.
+          example: 1482910
+        mime_type:
+          type: string
+          description: Validated MIME type of uploaded image.
+          example: "image/jpeg"
+        uploaded_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of upload processing completion.
+          example: "2026-10-05T08:20:45Z"
+
+    AudioTranslateRequest:
+      type: object
+      required:
+        - pet_id
+        - audio_format
+        - sample_rate_hz
+        - audio_base64
+      properties:
+        pet_id:
+          type: string
+          description: Pet ID associated with the vocal bark audio.
+          example: "corgi_98231"
+        audio_format:
+          type: string
+          enum: [wav, mp3, ogg, flac]
+          description: Audio compression encoding format.
+          example: "wav"
+        sample_rate_hz:
+          type: integer
+          enum: [16000, 22050, 44100, 48000]
+          description: Sampling frequency in Hertz.
+          example: 44100
+        audio_base64:
+          type: string
+          description: Standard Base64 encoded binary audio payload.
+          example: "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
+
+    AudioTranslateResponse:
+      type: object
+      required:
+        - translation_id
+        - pet_id
+        - emotion
+        - english_translation
+        - confidence_score
+        - frequency_hz
+        - translated_at
+      properties:
+        translation_id:
+          type: string
+          description: Unique translation transaction reference.
+          example: "tx_bark_88412"
+        pet_id:
+          type: string
+          description: Target pet identifier.
+          example: "corgi_98231"
+        emotion:
+          type: string
+          description: Recognized canine psychological and emotional mood state.
+          example: "Hungry / Demanding Attention"
+        english_translation:
+          type: string
+          description: Human natural language translation of bark semantics.
+          example: "I demand dinner immediately! Where is the kibble?"
+        confidence_score:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: AI neural classification certainty percentage (0.0 to 1.0).
+          example: 0.942
+        frequency_hz:
+          type: number
+          format: float
+          description: Dominant acoustic frequency detected in the bark audio clip.
+          example: 852.4
+        translated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when translation was completed.
+          example: "2026-10-05T08:25:12Z"
+
+    WebhookSubscriptionRequest:
+      type: object
+      required:
+        - callback_url
+        - event_types
+        - secret_token
+      properties:
+        callback_url:
+          type: string
+          format: uri
+          description: Secure HTTPS endpoint to which Corg.ly server delivers POST event webhooks.
+          example: "https://smartfeeder.iot.example.com/api/v1/corgly-events"
+        event_types:
+          type: array
+          items:
+            type: string
+            enum:
+              - "bark.translated"
+              - "pet.activity_alert"
+              - "pet.health_threshold_exceeded"
+              - "pet.photo_updated"
+          minItems: 1
+          description: List of subscribed asynchronous event triggers.
+          example: ["bark.translated", "pet.activity_alert"]
+        secret_token:
+          type: string
+          minLength: 16
+          description: Client-provided secret key used to compute HMAC SHA-256 webhook signatures.
+          example: "sec_wh_corgi_prod_7781a9f02b"
+        description:
+          type: string
+          description: Human-readable operational purpose of this webhook subscription.
+          example: "IoT Automated Feeder & Activity Monitor Webhook"
+
+    WebhookSubscriptionResponse:
+      type: object
+      required:
+        - subscription_id
+        - callback_url
+        - event_types
+        - status
+        - secret_preview
+        - created_at
+      properties:
+        subscription_id:
+          type: string
+          description: Unique identifier for the registered webhook subscription.
+          example: "wh_sub_55109"
+        callback_url:
+          type: string
+          format: uri
+          description: Registered destination URL.
+          example: "https://smartfeeder.iot.example.com/api/v1/corgly-events"
+        event_types:
+          type: array
+          items:
+            type: string
+          example: ["bark.translated", "pet.activity_alert"]
+        status:
+          type: string
+          enum: [active, paused, suspended]
+          example: "active"
+        secret_preview:
+          type: string
+          description: Masked security preview of HMAC shared secret.
+          example: "sec_wh_corgi...9f02b"
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 registration timestamp.
+          example: "2026-10-05T08:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+        - request_id
+      properties:
+        code:
+          type: string
+          description: Machine-readable uppercase error token.
+          example: "INVALID_REQUEST_PAYLOAD"
+        message:
+          type: string
+          description: Human-readable diagnostic description of the failure.
+          example: "The request payload failed field schema validation."
+        details:
+          type: array
+          items:
+            type: string
+          description: Specific validation or operational error items.
+          example: ["Field 'owner_email' must be a valid email format."]
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the server error occurred.
+          example: "2026-10-05T08:30:01Z"
+        request_id:
+          type: string
+          description: Traceable correlation ID for server log cross-referencing.
+          example: "req_corgly_err_482109"
+
+  responses:
+    BadRequestError:
+      description: 400 Bad Request — Malformed request syntax or unparseable JSON.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "BAD_REQUEST"
+            message: "Malformed request payload syntax or invalid parameter."
+            details: ["Syntax error in JSON string or invalid path parameter."]
+            timestamp: "2026-10-05T08:30:01Z"
+            request_id: "req_corgly_err_40011"
+
+    UnauthorizedError:
+      description: 401 Unauthorized — Bearer token missing, expired, or cryptographically invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "UNAUTHORIZED"
+            message: "Missing or invalid Bearer authentication token."
+            details: ["Authorization header missing Bearer prefix."]
+            timestamp: "2026-10-05T08:30:02Z"
+            request_id: "req_corgly_err_40112"
+
+    NotFoundError:
+      description: 404 Not Found — The requested resource identifier does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "RESOURCE_NOT_FOUND"
+            message: "The requested pet profile was not found."
+            details: ["No pet record found matching the specified pet_id."]
+            timestamp: "2026-10-05T08:30:03Z"
+            request_id: "req_corgly_err_40413"
+
+    ValidationError:
+      description: 422 Unprocessable Entity — Schema validation failure on semantic content.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "VALIDATION_FAILED"
+            message: "Payload semantic validation failed."
+            details: ["Value of sample_rate_hz must be one of [16000, 22050, 44100, 48000]."]
+            timestamp: "2026-10-05T08:30:04Z"
+            request_id: "req_corgly_err_42214"
+
+    InternalServerError:
+      description: 500 Internal Server Error — Unexpected internal exception in microservice logic.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: "INTERNAL_SERVER_ERROR"
+            message: "An internal server error occurred while processing acoustic models."
+            details: ["Inference pipeline timeout connecting to GPU cluster."]
+            timestamp: "2026-10-05T08:30:05Z"
+            request_id: "req_corgly_err_50015"

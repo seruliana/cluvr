@@ -1,0 +1,320 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 920 620] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 4349 >>
+stream
+0.970 0.980 0.990 rg
+0 0 920 620 re f
+0.700 0.100 0.100 rg
+BT
+/F2 16 Tf
+289.44 585.00 Td
+(UE-4 BEFORE - Architectural Anti-Patterns) Tj
+ET
+0.500 0.200 0.200 rg
+BT
+/F1 9 Tf
+268.12 568.00 Td
+(Demonstrating: 1\) Magic Container, 2\) Vague Labels, 3\) Layering Security Violation) Tj
+ET
+0.860 0.880 0.910 rg
+43 297 180 95 re f
+0.400 0.450 0.500 rg
+40 300 180 95 re f
+0.250 0.300 0.350 RG
+1.5 w
+40 300 180 95 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+119.08 375.00 Td
+(User) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+86.32 362.00 Td
+([Person: Unseparated]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+71.50 348.00 Td
+(Students, club organizers, and) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+63.70 338.00 Td
+(admins lump together without roles) Tj
+ET
+0.700 0.400 0.400 RG
+0.990 0.950 0.950 rg
+1.5 w
+[5 3] 0 d
+260 60 430 480 re f
+260 60 430 480 re S
+[] 0 d
+0.600 0.200 0.200 rg
+BT
+/F2 10 Tf
+275.00 520.00 Td
+(Cluvr System \(Vague Boundaries\)) Tj
+ET
+0.860 0.880 0.910 rg
+293 337 160 90 re f
+0.300 0.500 0.700 rg
+290 340 160 90 re f
+0.150 0.300 0.500 RG
+1.5 w
+290 340 160 90 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+348.16 410.00 Td
+(Frontend) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+338.80 397.00 Td
+([Container: JS]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+354.40 383.00 Td
+(UI views) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+327.10 373.00 Td
+(Vague responsibilities) Tj
+ET
+0.860 0.880 0.910 rg
+493 307 180 150 re f
+0.850 0.250 0.250 rg
+490 310 180 150 re f
+0.600 0.100 0.100 RG
+1.5 w
+490 310 180 150 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+544.51 440.00 Td
+(Cluvr Backend) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+538.40 427.00 Td
+([Container: Node.js]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+507.85 413.00 Td
+(*** ANTI-PATTERN: MAGIC CONTAINER ***) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+509.80 403.00 Td
+(Monolithic blob handling everything:) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+523.45 393.00 Td
+(- User authentication & roles) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+513.70 383.00 Td
+(- Direct image resize & disk write) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+527.35 373.00 Td
+(- Synchronous email sending) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+523.45 363.00 Td
+(- Club & event business logic) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+519.55 353.00 Td
+(- Moderation and admin approval) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+533.20 343.00 Td
+(Single Point of Failure!) Tj
+ET
+0.860 0.880 0.910 rg
+393 97 170 85 re f
+0.650 0.500 0.200 rg
+390 100 170 85 re f
+0.450 0.350 0.100 RG
+1.5 w
+390 100 170 85 re S
+0.450 0.350 0.100 RG
+1.2 w
+390.0 173.0 m 560.0 173.0 l S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+464.08 165.00 Td
+(Data) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+441.72 152.00 Td
+([Container: SQL]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+437.95 138.00 Td
+(*** VAGUE LABEL ***) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+420.40 128.00 Td
+(Database without technology,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+422.35 118.00 Td
+(schema, or constraint specs) Tj
+ET
+0.860 0.880 0.910 rg
+733 337 140 90 re f
+0.500 0.500 0.500 rg
+730 340 140 90 re f
+0.350 0.350 0.350 RG
+1.5 w
+730 340 140 90 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+761.78 410.00 Td
+(External stuff) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+762.56 397.00 Td
+([External Service]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+762.95 383.00 Td
+(*** VAGUE LABEL ***) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+757.10 373.00 Td
+(Unknown third parties,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+757.10 363.00 Td
+(no protocols specified) Tj
+ET
+0.400 0.400 0.400 RG
+1.2 w
+220.0 350.0 m 290.0 350.0 l S
+290.0 350.0 m 280.7 353.7 l 280.7 346.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+246.68 355.00 Td
+(Uses) Tj
+ET
+450.0 370.0 m 490.0 370.0 l S
+490.0 370.0 m 480.7 373.7 l 480.7 366.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+459.60 375.00 Td
+(Calls) Tj
+ET
+580.0 310.0 m 500.0 185.0 l S
+500.0 185.0 m 508.1 190.8 l 501.9 194.8 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+531.68 252.50 Td
+(Uses) Tj
+ET
+670.0 370.0 m 730.0 370.0 l S
+730.0 370.0 m 720.7 373.7 l 720.7 366.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+683.36 375.00 Td
+(Connects) Tj
+ET
+0.850 0.100 0.100 RG
+2.0 w
+[4 3] 0 d
+350.0 340.0 m 430.0 185.0 l S
+430.0 185.0 m 429.0 195.0 l 422.4 191.6 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+354.64 267.50 Td
+(Direct DB Access!) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+346.32 255.50 Td
+([CRITICAL SECURITY FLAW]) Tj
+ET
+[] 0 d
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4797
+%%EOF

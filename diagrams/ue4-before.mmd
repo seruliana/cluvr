@@ -1,0 +1,14 @@
+C4Container
+  title UE-4 BEFORE — Anti-pattern: "Magic Container" & Vague Architecture
+  Person(user, "Хэрэглэгч", "Оюутан / Зохион байгуулагч / Админ (үүрэг салгаагүй)")
+  System_Boundary(cluvr_bad, "Cluvr Систем") {
+    Container(web, "Frontend", "JS", "UI харуулах")
+    Container(magic, "Cluvr Backend (Magic Container)", "Node.js", "Бүх логикийг зохицуулна (auth, email, зураг, модерац)")
+    ContainerDb(db, "Data", "SQL", "Өгөгдөл хадгална")
+  }
+  System_Ext(ext, "External stuff", "Гадаад үйлчилгээ")
+  Rel(user, web, "Ашиглана")
+  Rel(web, magic, "Дуудна")
+  Rel(web, db, "Шууд уншина (Anti-pattern: Layering violation)")
+  Rel(magic, db, "Ашиглана")
+  Rel(magic, ext, "Холбогдоно")

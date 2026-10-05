@@ -1,0 +1,17 @@
+graph LR
+  subgraph SwaggerUI["Swagger UI (Sandbox / Debugging)"]
+    S1["Нэг баганат аккордеон загвар"]
+    S2["Интерактив 'Try-it-Out' товч"]
+    S3["Шууд curl болон response харах"]
+    S4["BearerAuth цонхоор JWT оруулах"]
+  end
+
+  subgraph Redoc["Redoc (Public Technical Reference)"]
+    R1["3 баганат responsive загвар"]
+    R2["Бүрэн текстийн хурдан хайлт (Client Search)"]
+    R3["Дэлгэрэнгүй тайлбар & Markdown дэмжлэг"]
+    R4["Хүсэлт/Хариултын загварыг нэг дор зэрэгцүүлж харах"]
+  end
+
+  Spec["OpenAPI 3.0.3 Спецификаци (openapi.yaml)"] --> SwaggerUI
+  Spec --> Redoc

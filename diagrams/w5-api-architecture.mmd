@@ -1,0 +1,52 @@
+graph TD
+  subgraph Consumers["API Хэрэглэгчид (Clients)"]
+    ClientApp["Гар утасны апп (Mobile App)"]
+    IoTFeeder["IoT Ухаалаг тэжээгч (Smart Feeder)"]
+    ExternalDev["Хөндлөнгийн хөгжүүлэгчид (3rd-Party Devs)"]
+  end
+
+  subgraph Contract["Үнэний цорын ганц эх сурвалж (Contract-First Specification)"]
+    OpenAPISpec["OpenAPI 3.0.3 Спецификаци\n(docs/openapi/openapi.yaml)"]
+  end
+
+  subgraph Renderers["Баримтжуулалтын хос систем (Dual Documentation Renderers)"]
+    SwaggerUI["Swagger UI\n(Интерактив Sandbox / Try-it-Out)"]
+    Redoc["Redoc\n(3 баганат бүтцийн лавлах хуудас)"]
+  end
+
+  subgraph Gateway["Corg.ly API Gateway / Reverse Proxy (Illustrative)"]
+    AuthModule["JWT Bearer Authentication (RFC 7519)"]
+    ValidationModule["OpenAPI Schema & Payload Validator"]
+    RateLimiter["Rate Limiting & SSL Termination"]
+  end
+
+  subgraph BackendServices["Арын албаны микросервисүүд (Illustrative Architecture)"]
+    PetService["Амьтан бүртгэл ба медиа сервис (Pet & Photo Service)"]
+    AudioService["Хуцалт хөрвүүлэх AI сервис (Neural Bark Classifier)"]
+    WebhookService["Вэбхүүк үйл явдал диспетчер (Webhook Dispatcher)"]
+  end
+
+  subgraph DataStorage["Өгөгдлийн сан ба хадгалалт (Illustrative Architecture)"]
+    PostgresDB[("PostgreSQL 16\n(Pet Profiles, Webhooks)")]
+    S3Storage[("AWS S3 Bucket\n(Pet Photos, Audio Files)")]
+  end
+
+  ClientApp -->|HTTPS / REST API| Gateway
+  IoTFeeder -->|HTTPS / Events| Gateway
+  ExternalDev -->|API дуудлага| Gateway
+
+  OpenAPISpec -.->|Generate HTML| Redoc
+  OpenAPISpec -.->|Interactive Spec Feed| SwaggerUI
+  SwaggerUI -->|Try-It-Out дуудлага| Gateway
+
+  Gateway --> AuthModule
+  AuthModule --> ValidationModule
+  ValidationModule --> PetService
+  ValidationModule --> AudioService
+  ValidationModule --> WebhookService
+
+  PetService --> PostgresDB
+  PetService --> S3Storage
+  AudioService --> S3Storage
+  WebhookService --> PostgresDB
+  WebhookService -->|HMAC SHA-256 POST Callback| IoTFeeder

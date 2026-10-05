@@ -1,0 +1,521 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 1080 720] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 7730 >>
+stream
+0.970 0.980 0.990 rg
+0 0 1080 720 re f
+0.100 0.400 0.200 rg
+BT
+/F2 16 Tf
+348.64 685.00 Td
+(UE-4 AFTER - Refactored Container Architecture) Tj
+ET
+0.200 0.450 0.300 rg
+BT
+/F1 9 Tf
+320.04 668.00 Td
+(Modeling Chinchilla Ch. 2 pp. 22-23 & Bhatti Ch. 6: Single Responsibility & Explicit Protocols) Tj
+ET
+0.100 0.150 0.300 rg
+BT
+/F2 16 Tf
+381.92 692.00 Td
+(Cluvr - Container Diagram \(C4 Level 2\)) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 9 Tf
+364.50 675.00 Td
+(arc42 Section 5: Building Block View Level 1 | 5 Containers \(<= 8 Rule Met\)) Tj
+ET
+0.860 0.880 0.910 rg
+33 467 170 80 re f
+0.050 0.350 0.650 rg
+30 470 170 80 re f
+0.020 0.200 0.450 RG
+1.5 w
+30 470 170 80 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+63.13 530.00 Td
+(Student \(Bold / P1\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+98.36 517.00 Td
+([Person]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+70.15 503.00 Td
+(Discovers clubs & RSVPs) Tj
+ET
+0.860 0.880 0.910 rg
+33 342 170 80 re f
+0.050 0.350 0.650 rg
+30 345 170 80 re f
+0.020 0.200 0.450 RG
+1.5 w
+30 345 170 80 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+74.05 405.00 Td
+(Club Admin \(P2\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+98.36 392.00 Td
+([Person]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+72.10 378.00 Td
+(Publishes & leads club) Tj
+ET
+0.860 0.880 0.910 rg
+33 217 170 80 re f
+0.050 0.350 0.650 rg
+30 220 170 80 re f
+0.020 0.200 0.450 RG
+1.5 w
+30 220 170 80 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+57.67 280.00 Td
+(University Admin \(P3\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+98.36 267.00 Td
+([Person]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+70.15 253.00 Td
+(Moderates club listings) Tj
+ET
+0.450 0.500 0.600 RG
+0.940 0.960 0.980 rg
+1.5 w
+[5 3] 0 d
+230 45 595 590 re f
+230 45 595 590 re S
+[] 0 d
+0.200 0.300 0.450 rg
+BT
+/F2 10.5 Tf
+245.00 615.00 Td
+(Cluvr System [System Boundary]) Tj
+ET
+0.860 0.880 0.910 rg
+258 457 245 115 re f
+0.200 0.550 0.850 rg
+255 460 245 115 re f
+0.100 0.350 0.600 RG
+1.5 w
+255 460 245 115 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+328.36 555.00 Td
+(Web App \(Frontend\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+310.94 542.00 Td
+([Container: HTML5, Tailwind, JS]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+305.35 528.00 Td
+(11 responsive views \(1280px desktop\),) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+313.15 518.00 Td
+(client-side validation, UI state,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+311.20 508.00 Td
+(fetches JSON from backend REST API) Tj
+ET
+0.860 0.880 0.910 rg
+558 457 245 115 re f
+0.120 0.480 0.850 rg
+555 460 245 115 re f
+0.060 0.300 0.600 RG
+1.5 w
+555 460 245 115 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+628.36 555.00 Td
+(REST API \(Backend\)) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+610.94 542.00 Td
+([Container: Node.js 20, Express]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+611.20 528.00 Td
+(Handles auth, sessions, club CRUD,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+597.55 518.00 Td
+(event registration, and moderation logic.) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+599.50 508.00 Td
+(Documented via OpenAPI 3.0 specification) Tj
+ET
+0.860 0.880 0.910 rg
+558 257 245 115 re f
+0.150 0.400 0.700 rg
+555 260 245 115 re f
+0.080 0.250 0.500 RG
+1.5 w
+555 260 245 115 re S
+0.080 0.250 0.500 RG
+1.2 w
+555.0 363.0 m 800.0 363.0 l S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+655.66 355.00 Td
+(Database) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+619.26 342.00 Td
+([ContainerDb: PostgreSQL 16]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+609.25 328.00 Td
+(Stores users, clubs, events, RSVPs,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+597.55 318.00 Td
+(and roles. Enforces relational integrity,) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+601.45 308.00 Td
+(unique constraints, and indexed queries) Tj
+ET
+0.860 0.880 0.910 rg
+258 257 245 115 re f
+0.200 0.550 0.850 rg
+255 260 245 115 re f
+0.100 0.350 0.600 RG
+1.5 w
+255 260 245 115 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+344.74 355.00 Td
+(File Storage) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+306.78 342.00 Td
+([Container: S3-Compatible Storage]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+295.60 328.00 Td
+(Stores club logo images, event promotional) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+295.60 318.00 Td
+(banners, and uploaded media files securely) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+311.20 308.00 Td
+(with CDN distribution capabilities) Tj
+ET
+0.860 0.880 0.910 rg
+558 62 245 115 re f
+0.120 0.480 0.850 rg
+555 65 245 115 re f
+0.060 0.300 0.600 RG
+1.5 w
+555 65 245 115 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+625.63 160.00 Td
+(Notification Worker) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+613.02 147.00 Td
+([Container: Node.js, node-cron]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+605.35 133.00 Td
+(Background cron service that monitors) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+607.30 123.00 Td
+(upcoming event schedules \(FR-14\) and) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+603.40 113.00 Td
+(enqueues transactional reminder emails) Tj
+ET
+0.860 0.880 0.910 rg
+858 557 195 85 re f
+0.420 0.450 0.480 rg
+855 560 195 85 re f
+0.280 0.300 0.320 RG
+1.5 w
+855 560 195 85 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+911.55 625.00 Td
+(Google Calendar) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+898.42 612.00 Td
+([External System: Web API]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+903.75 598.00 Td
+(Consumer calendar service) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+890.10 588.00 Td
+(for syncing events via deep link) Tj
+ET
+0.860 0.880 0.910 rg
+858 77 195 85 re f
+0.420 0.450 0.480 rg
+855 80 195 85 re f
+0.280 0.300 0.320 RG
+1.5 w
+855 80 195 85 re S
+1.000 1.000 1.000 rg
+BT
+/F2 10.5 Tf
+919.74 145.00 Td
+(SMTP Service) Tj
+ET
+0.880 0.930 1.000 rg
+BT
+/F1 8 Tf
+896.34 132.00 Td
+([External System: SMTP/TLS]) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+897.90 118.00 Td
+(Transactional email provider) Tj
+ET
+0.950 0.960 0.990 rg
+BT
+/F1 7.5 Tf
+897.90 108.00 Td
+(for delivering notifications) Tj
+ET
+0.200 0.300 0.400 RG
+1.3 w
+[] 0 d
+200.0 510.0 m 255.0 510.0 l S
+255.0 510.0 m 245.7 513.7 l 245.7 506.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+217.10 515.00 Td
+(HTTPS) Tj
+ET
+200.0 385.0 m 255.0 480.0 l S
+255.0 480.0 m 247.1 473.8 l 253.6 470.1 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+217.10 437.50 Td
+(HTTPS) Tj
+ET
+200.0 260.0 m 255.0 470.0 l S
+255.0 470.0 m 249.1 462.0 l 256.2 460.1 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+217.10 370.00 Td
+(HTTPS) Tj
+ET
+500.0 515.0 m 555.0 515.0 l S
+555.0 515.0 m 545.7 518.7 l 545.7 511.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+508.78 520.00 Td
+(API Calls) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+502.02 508.00 Td
+([JSON / HTTPS]) Tj
+ET
+675.0 460.0 m 675.0 375.0 l S
+675.0 375.0 m 678.7 384.3 l 671.3 384.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+650.04 422.50 Td
+(Reads/Writes) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+654.98 410.50 Td
+([SQL / TCP]) Tj
+ET
+555.0 480.0 m 525.0 480.0 l S
+525.0 480.0 m 525.0 330.0 l S
+525.0 330.0 m 500.0 330.0 l S
+500.0 330.0 m 509.3 326.3 l 509.3 333.7 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+497.96 410.00 Td
+(Uploads Media) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+512.26 398.00 Td
+([HTTPS]) Tj
+ET
+675.0 260.0 m 675.0 180.0 l S
+675.0 180.0 m 678.7 189.3 l 671.3 189.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+643.80 225.00 Td
+(Polls Reminders) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+654.98 213.00 Td
+([SQL / TCP]) Tj
+ET
+800.0 122.0 m 855.0 122.0 l S
+855.0 122.0 m 845.7 125.7 l 845.7 118.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+806.70 127.00 Td
+(Sends Mail) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+805.66 115.00 Td
+([SMTP / TLS]) Tj
+ET
+375.0 575.0 m 375.0 595.0 l S
+375.0 595.0 m 855.0 595.0 l S
+855.0 595.0 m 845.7 598.7 l 845.7 591.3 l f
+0.200 0.250 0.350 rg
+BT
+/F2 8 Tf
+343.80 590.00 Td
+(Sync Event Link) Tj
+ET
+0.400 0.450 0.550 rg
+BT
+/F1 7 Tf
+344.06 578.00 Td
+([HTTPS Deep Link]) Tj
+ET
+0.120 0.550 0.280 rg
+840 650 210 25 re f
+1.000 1.000 1.000 rg
+BT
+/F2 8.5 Tf
+894.17 666.00 Td
+(REFACTORED ARCHITECTURE) Tj
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000252 00000 n 
+0000000322 00000 n 
+0000000397 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+8179
+%%EOF

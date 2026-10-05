@@ -1,0 +1,5 @@
+flowchart LR
+  A["Git Push / PR\n(main/master)"] --> B["Redocly Linter\n(redocly lint)"]
+  B -->|0 Errors, 0 Warnings| C["Redoc Build\n(redocly build-docs)"]
+  C --> D["Automated Tests\n(python -m unittest)"]
+  D -->|3/3 Tests Passed| E["Artifact Release\n(Public Docs & Swagger)"]

@@ -1,0 +1,245 @@
+openapi: 3.0.3
+info:
+  title: Cluvr University Clubs & Events API
+  version: 1.0.0
+  description: >-
+    Official API specification for Cluvr, the centralized campus club discovery,
+    event RSVP, and student organization management platform at National University of Mongolia.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  contact:
+    name: Ts. Saruulchimeg
+    email: saruulchimeg.ts@num.edu.mn
+
+servers:
+  - url: https://cluvr.num.edu.mn/api/v1
+    description: Production Server
+  - url: http://127.0.0.1:5000/api/v1
+    description: Local Development Server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate student or organizer and obtain JWT
+      operationId: loginUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "saruulchimeg.ts@num.edu.mn"
+                password:
+                  type: string
+                  format: password
+                  example: "SecureP@ssw0rd2026!"
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, user_id, role]
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  user_id:
+                    type: string
+                    example: "usr_23B1NUM1396"
+                  role:
+                    type: string
+                    enum: [student, organizer, admin]
+                    example: "student"
+        '401':
+          description: Invalid email or password
+
+  /clubs:
+    get:
+      summary: Search and filter campus clubs
+      operationId: listClubs
+      tags:
+        - Clubs
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "coding"
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "technology"
+      responses:
+        '200':
+          description: List of clubs matching filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClubSummary'
+        '400':
+          description: Invalid filter query parameter
+
+  /clubs/{id}:
+    get:
+      summary: Retrieve detailed club profile
+      operationId: getClubById
+      tags:
+        - Clubs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "club_acm_student_chapter"
+      responses:
+        '200':
+          description: Club details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubDetail'
+        '404':
+          description: Club not found
+
+  /events/{id}/rsvp:
+    post:
+      summary: Register RSVP for a club event
+      operationId: rsvpEvent
+      tags:
+        - Events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "evt_hackathon_2026"
+      responses:
+        '200':
+          description: RSVP successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rsvp_id, status, registered_at]
+                properties:
+                  rsvp_id:
+                    type: string
+                    example: "rsvp_98124"
+                  status:
+                    type: string
+                    example: "confirmed"
+                  registered_at:
+                    type: string
+                    format: date-time
+                    example: "2026-10-05T08:00:00Z"
+        '400':
+          description: Event already full or registration closed
+        '401':
+          description: Unauthorized
+
+  /media/upload:
+    post:
+      summary: Upload club logo or event promotional poster
+      operationId: uploadClubMedia
+      tags:
+        - Media
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, target_type]
+              properties:
+                target_type:
+                  type: string
+                  enum: [club_logo, event_poster]
+                  example: "event_poster"
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File uploaded to S3-compatible storage
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [media_url, file_size_bytes]
+                properties:
+                  media_url:
+                    type: string
+                    example: "https://storage.cluvr.num.edu.mn/posters/hackathon_2026.png"
+                  file_size_bytes:
+                    type: integer
+                    example: 2048590
+        '413':
+          description: File exceeds 5MB ceiling
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ClubSummary:
+      type: object
+      required: [club_id, name, category, member_count]
+      properties:
+        club_id:
+          type: string
+          example: "club_acm_num"
+        name:
+          type: string
+          example: "NUM ACM Student Chapter"
+        category:
+          type: string
+          example: "Technology & Software"
+        member_count:
+          type: integer
+          example: 120
+
+    ClubDetail:
+      type: object
+      required: [club_id, name, category, description, leader_name, contact_email]
+      properties:
+        club_id:
+          type: string
+          example: "club_acm_num"
+        name:
+          type: string
+          example: "NUM ACM Student Chapter"
+        category:
+          type: string
+          example: "Technology & Software"
+        description:
+          type: string
+          example: "The premier competitive programming and open-source club at NUM."
+        leader_name:
+          type: string
+          example: "Ts. Saruulchimeg"
+        contact_email:
+          type: string
+          example: "acm@num.edu.mn"
